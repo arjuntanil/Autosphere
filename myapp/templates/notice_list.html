@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+{% load custom_filters %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoSphere - Notices</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        function googleTranslateElementInit() {
+            // Remove the existing Google Translate initialization
+            // We'll implement a custom translation approach for specific content only
+        }
+        
+        // Initialize content translation when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add translation buttons to each notice
+            initializeTranslationForNotices();
+        });
+        
+        function initializeTranslationForNotices() {
+            // Get all notices
+            var notices = document.querySelectorAll('.notice-card');
+            
+            notices.forEach(function(notice) {
+                var noticeId = notice.getAttribute('data-notice-id');
+                var contentDiv = document.getElementById('notice-content-' + noticeId);
+                
+                if (contentDiv) {
+                    // Save original content
+                    var originalContent = contentDiv.innerHTML;
+                    contentDiv.setAttribute('data-original-content', originalContent);
+                    
+                    // Create translation container and buttons
+                    var translationControl = document.createElement('div');
+                    translationControl.className = 'notice-translation';
+                    
+                    // English button
+                    var enButton = document.createElement('button');
+                    enButton.className = 'translation-btn active';
+                    enButton.innerHTML = 'EN';
+                    enButton.onclick = function() {
+                        contentDiv.innerHTML = contentDiv.getAttribute('data-original-content');
+                        setActiveTranslationButton(this, noticeId);
+                    };
+                    
+                    // Malayalam button
+                    var mlButton = document.createElement('button');
+                    mlButton.className = 'translation-btn';
+                    mlButton.innerHTML = 'ML';
+                    mlButton.onclick = function() {
+                        if (!this.classList.contains('active')) {
+                            translateNoticeContent(contentDiv, 'ml', noticeId);
+                            setActiveTranslationButton(this, noticeId);
+                        }
+                    };
+                    
+                    // Add buttons to container
+                    translationControl.appendChild(enButton);
+                    translationControl.appendChild(mlButton);
+                    
+                    // Add container to notice
+                    var noticeHeader = notice.querySelector('.notice-meta');
+                    if (noticeHeader) {
+                        noticeHeader.appendChild(translationControl);
+                    }
+                }
+            });
+        }
+        
+        function setActiveTranslationButton(button, noticeId) {
+            // Remove active class from all buttons in this notice
+            var buttons = button.parentElement.querySelectorAll('.translation-btn');
+            buttons.forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            button.classList.add('active');
+        }
+        
+        function translateNoticeContent(element, targetLang, noticeId) {
+            // Get original content
+            var originalText = element.getAttribute('data-original-content');
+            
+            // Show loading indicator
+            var originalHeight = element.offsetHeight;
+            element.innerHTML = '<div class="translation-loading"><i class="fas fa-spinner fa-spin"></i></div>';
+            element.style.minHeight = originalHeight + 'px';
+            
+            // Use Google Translate API with fetch
+            fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(originalText)}`)
+                .then(response => response.json())
+                .then(data => {
+                    var translatedText = '';
+                    
+                    // Extract translated text from response
+                    if (data && data[0]) {
+                        data[0].forEach(function(item) {
+                            if (item[0]) {
+                                translatedText += item[0];
+                            }
+                        });
+                    }
+                    
+                    // Update content
+                    if (translatedText) {
+                        element.innerHTML = translatedText;
+                    } else {
+                        element.innerHTML = originalText;
+                    }
+                    element.style.minHeight = '';
+                })
+                .catch(error => {
+                    console.error('Translation error:', error);
+                    element.innerHTML = originalText;
+                    element.style.minHeight = '';
+                });
+        }
+
+        function speakText(id) {
+            if ('speechSynthesis' in window) {
+                // Stop any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                // Update all buttons to default state
+                const allButtons = document.querySelectorAll('.listen-btn');
+                allButtons.forEach(btn => {
+                    btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+                    btn.classList.remove('listening');
+                });
+                
+                // Get current button
+                const button = document.getElementById('listen-btn-' + id);
+                
+                const content = document.getElementById('notice-content-' + id).textContent;
+                const utterance = new SpeechSynthesisUtterance(content);
+                
+                // Check which language is currently active for this notice
+                var activeTranslation = document.querySelector('#notice-content-' + id)
+                    .closest('.notice-card')
+                    .querySelector('.translation-btn.active');
+                
+                if (activeTranslation && activeTranslation.textContent === 'ML') {
+                    utterance.lang = 'ml-IN';
+                } else {
+                    utterance.lang = 'en-US';
+                }
+                
+                // Update UI to show speaking status
+                button.innerHTML = '<i class="fas fa-volume-up fa-pulse"></i> Speaking...';
+                button.classList.add('listening');
+                
+                // When speech ends
+                utterance.onend = function() {
+                    button.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+                    button.classList.remove('listening');
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Sorry, your browser does not support text-to-speech!');
+            }
+        }
+        
+        // Stop speaking
+        function stopSpeaking() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                
+                // Reset all buttons
+                const allButtons = document.querySelectorAll('.listen-btn');
+                allButtons.forEach(btn => {
+                    btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+                    btn.classList.remove('listening');
+                });
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body {
+            background-color: #121212;
+            background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            padding: 1.5rem 2rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideIn 0.5s ease-out;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .logo:hover {
+            transform: scale(1.02);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: #3d84ff;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: #f5f5f5;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover {
+            background-position: right center;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(61, 132, 255, 0.2);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #f5f5f5;
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: #3d84ff;
+        }
+
+        .page-description {
+            color: #a0a0a0;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .notices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .notice-card {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #2a2a2a;
+            animation: slideIn 0.7s ease-out;
+        }
+
+        .notice-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-color: #3d3d3d;
+        }
+
+        .notice-type-important {
+            border-left: 3px solid #ff3d6e;
+        }
+
+        .notice-type-alert {
+            border-left: 3px solid #ffb13d;
+        }
+
+        .notice-type-general {
+            border-left: 3px solid #3d84ff;
+        }
+
+        .notice-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .notice-icon {
+            font-size: 1rem;
+            color: #3d84ff;
+        }
+
+        .notice-type-important .notice-icon {
+            color: #ff3d6e;
+        }
+
+        .notice-type-alert .notice-icon {
+            color: #ffb13d;
+        }
+
+        .notice-type {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            background-color: rgba(61, 132, 255, 0.1);
+            color: #3d84ff;
+        }
+
+        .notice-type-important .notice-type {
+            background-color: rgba(255, 61, 110, 0.1);
+            color: #ff3d6e;
+        }
+
+        .notice-type-alert .notice-type {
+            background-color: rgba(255, 177, 61, 0.1);
+            color: #ffb13d;
+        }
+
+        .notice-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f5f5f5;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .notice-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 0.8rem;
+            color: #777;
+            font-size: 0.8rem;
+        }
+
+        .notice-meta-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notice-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notice-preview {
+            color: #a0a0a0;
+            line-height: 1.5;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
+            flex-grow: 1;
+        }
+
+        .notice-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #3d84ff;
+            font-weight: 500;
+            text-decoration: none;
+            padding-top: 0.8rem;
+            transition: all 0.2s ease;
+            border-top: 1px solid #2a2a2a;
+            align-self: flex-start;
+            font-size: 0.85rem;
+        }
+
+        .notice-link:hover {
+            color: #63d1ff;
+        }
+
+        .no-notices {
+            grid-column: 1 / -1;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 2.5rem;
+            text-align: center;
+            color: #777;
+            border: 1px solid #2a2a2a;
+            animation: slideIn 0.7s ease-out;
+        }
+
+        .no-notices-icon {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 992px) {
+            .notices-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            main {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .notices-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .notices-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .notice-card {
+                padding: 1.2rem;
+            }
+        }
+
+        .accessibility-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stop-all-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(90deg, #ff3d3d, #ff7070);
+            background-size: 200% auto;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 61, 61, 0.2);
+        }
+        
+        .stop-all-btn:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 61, 61, 0.3);
+        }
+        
+        .stop-all-btn i {
+            font-size: 1rem;
+        }
+        
+        /* Notice translation styles */
+        .notice-translation {
+            display: flex;
+            margin-left: auto;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid #2a2a2a;
+        }
+        
+        .translation-btn {
+            padding: 0.25rem 0.5rem;
+            background: none;
+            border: none;
+            color: #a0a0a0;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .translation-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #f5f5f5;
+        }
+        
+        .translation-btn.active {
+            background-color: #3d84ff;
+            color: #fff;
+        }
+        
+        .translation-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+        
+        .translation-loading i {
+            color: #3d84ff;
+        }
+        
+        /* Remove unused Google Translate styles */
+        .goog-te-banner-frame,
+        .goog-te-menu-value,
+        .VIpgJd-ZVi9od-l4eHX-hSRGPd,
+        .goog-te-gadget,
+        .skiptranslate {
+            display: none !important;
+        }
+        
+        @media (max-width: 480px) {
+            .notice-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .notice-translation {
+                margin-left: 0;
+                align-self: flex-start;
+            }
+        }
+
+        .notice-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .listen-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(61, 132, 255, 0.2);
+        }
+
+        .listen-btn:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(61, 132, 255, 0.3);
+        }
+
+        .listen-btn i {
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .listen-btn.listening {
+            background: linear-gradient(90deg, #ff3d6e, #ff7070);
+            box-shadow: 0 4px 15px rgba(255, 61, 110, 0.2);
+        }
+
+        .listen-btn.listening:hover {
+            box-shadow: 0 6px 20px rgba(255, 61, 110, 0.3);
+        }
+
+        .listen-btn.listening i {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fas fa-car"></i>
+            <h1>AutoSphere</h1>
+        </a>
+        <nav class="nav-links">
+            {% if user.is_authenticated %}
+                {% if user.is_rto %}
+                <a href="{% url 'rto_home' %}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                {% else %}
+                <a href="{% url 'home' %}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1 class="page-title">Notices & Announcements</h1>
+            <p class="page-description">Stay updated with the latest information from Regional Transport Offices.</p>
+        </div>
+
+        <div class="accessibility-toolbar">
+            <button class="stop-all-btn" onclick="stopSpeaking()">
+                <i class="fas fa-stop-circle"></i>
+                <span>Stop All Audio</span>
+            </button>
+        </div>
+
+        {% if notices %}
+        <div class="notices-grid">
+            {% for notice in notices %}
+            <div class="notice-card notice-type-{{ notice.notice_type|lower }}" data-notice-id="{{ notice.id }}">
+                <div class="notice-header">
+                    {% if notice.notice_type == 'General' %}
+                        <i class="fas fa-bullhorn notice-icon"></i>
+                    {% elif notice.notice_type == 'Important' %}
+                        <i class="fas fa-exclamation-circle notice-icon"></i>
+                    {% elif notice.notice_type == 'Alert' %}
+                        <i class="fas fa-bell notice-icon"></i>
+                    {% endif %}
+                    <span class="notice-type">{{ notice.notice_type }}</span>
+                </div>
+                <h3 class="notice-title">{{ notice.title }}</h3>
+                <div class="notice-meta">
+                    <div class="notice-meta-info">
+                        <div class="notice-meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>{{ notice.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="notice-meta-item">
+                            <i class="fas fa-user"></i>
+                            <span>{{ notice.created_by.location }}</span>
+                        </div>
+                    </div>
+                    <!-- Translation buttons will be added here dynamically -->
+                </div>
+                <p class="notice-preview" id="notice-content-{{ notice.id }}">{{ notice.content|truncatechars:150 }}</p>
+                <div class="notice-actions">
+                    <a href="{% url 'notice_detail' notice.id %}" class="notice-link">
+                        <i class="fas fa-eye"></i> Read More
+                    </a>
+                    <button id="listen-btn-{{ notice.id }}" class="listen-btn" onclick="speakText('{{ notice.id }}')">
+                        <i class="fas fa-volume-up"></i> Listen
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-notices">
+            <div class="no-notices-icon">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <h3>No Notices Available</h3>
+            <p>There are currently no notices or announcements. Please check back later.</p>
+        </div>
+        {% endif %}
+    </main>
+</body>
+</html> 

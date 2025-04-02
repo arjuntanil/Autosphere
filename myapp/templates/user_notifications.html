@@ -1,0 +1,672 @@
+{% load static %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block extra_css %}
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-5px); }
+        100% { transform: translateY(0px); }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes scaleUp {
+        from {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    body {
+        background-color: #121212;
+        background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        color: #f5f5f5;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+    
+    /* Background effects */
+    .circle {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        z-index: -1;
+        opacity: 0.3;
+    }
+    
+    .circle-1 {
+        width: 300px;
+        height: 300px;
+        left: -100px;
+        top: -100px;
+        background: linear-gradient(45deg, #3d84ff, #63d1ff);
+    }
+    
+    .circle-2 {
+        width: 400px;
+        height: 400px;
+        right: -150px;
+        bottom: -150px;
+        background: linear-gradient(45deg, #ff4e50, #f9d423);
+    }
+    
+    .bg-blur {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: -1;
+        opacity: 0.15;
+    }
+    
+    .blur-1 {
+        width: 400px;
+        height: 400px;
+        top: 20%;
+        left: 10%;
+        background: linear-gradient(45deg, #3d84ff, #63d1ff);
+        animation: float 20s ease-in-out infinite alternate;
+    }
+    
+    .blur-2 {
+        width: 300px;
+        height: 300px;
+        top: 40%;
+        right: 15%;
+        background: linear-gradient(45deg, #ff4e50, #f9d423);
+        animation: float 15s ease-in-out infinite alternate-reverse;
+    }
+    
+    .blur-3 {
+        width: 250px;
+        height: 250px;
+        bottom: 10%;
+        left: 30%;
+        background: linear-gradient(45deg, #3d84ff, #f9d423);
+        animation: float 18s ease-in-out infinite alternate;
+    }
+    
+    /* Header styles */
+    .custom-header {
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .logo:hover {
+        transform: scale(1.02);
+    }
+    
+    .logo i {
+        font-size: 1.8rem;
+        color: #3d84ff;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .logo h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        background: linear-gradient(90deg, #3d84ff, #63d1ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin: 0;
+    }
+    
+    .search-input {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #f5f5f5;
+    }
+    
+    .search-input:focus {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 0 2px rgba(61, 132, 255, 0.3);
+        color: #f5f5f5;
+    }
+    
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .search-btn {
+        background: none;
+        border: none;
+        color: #3d84ff;
+    }
+    
+    .search-btn:hover {
+        color: #63d1ff;
+    }
+    
+    .nav-link {
+        color: #f5f5f5;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        color: #f5f5f5;
+    }
+    
+    .nav-link i {
+        color: #3d84ff;
+    }
+    
+    /* Notification styles */
+    .notification-badge {
+        background: linear-gradient(90deg, #3d84ff, #63d1ff);
+        color: white;
+        padding: 3px 10px;
+        border-radius: 20px;
+        animation: pulse 2s infinite;
+    }
+    
+    .notification-container {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .home-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: linear-gradient(90deg, rgba(61, 132, 255, 0.1), rgba(99, 209, 255, 0.1));
+        border-radius: 30px;
+        color: #f5f5f5;
+        text-decoration: none;
+        border: 1px solid rgba(61, 132, 255, 0.3);
+        transition: all 0.3s ease;
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .home-link:hover {
+        background: linear-gradient(90deg, rgba(61, 132, 255, 0.2), rgba(99, 209, 255, 0.2));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        color: #f5f5f5;
+    }
+    
+    .home-link i {
+        color: #3d84ff;
+        font-size: 1.1rem;
+    }
+    
+    .notification-item {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        animation: scaleUp 0.5s ease-out;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-left: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .notification-item:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transform: translateY(-3px);
+    }
+    
+    .notification-item.unread::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, #3d84ff, #63d1ff);
+        animation: pulse 2s infinite;
+    }
+    
+    .notification-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .notification-icon.fine {
+        color: #e74c3c;
+        background-color: rgba(231, 76, 60, 0.1);
+    }
+    
+    .notification-icon.blacklist {
+        color: #c0392b;
+        background-color: rgba(192, 57, 43, 0.1);
+    }
+    
+    .notification-icon.notice {
+        color: #f39c12;
+        background-color: rgba(243, 156, 18, 0.1);
+    }
+    
+    .notification-icon.payment_reminder {
+        color: #27ae60;
+        background-color: rgba(39, 174, 96, 0.1);
+    }
+    
+    .notification-title {
+        font-weight: 600;
+        color: #f5f5f5;
+    }
+    
+    .notification-message {
+        color: #aaa;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .notification-time {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #888;
+        font-size: 0.85rem;
+    }
+    
+    .notification-time i {
+        color: #3d84ff;
+    }
+    
+    .notification-type {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        text-transform: capitalize;
+    }
+    
+    .notification-type.fine {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+    
+    .notification-type.blacklist {
+        background-color: rgba(192, 57, 43, 0.1);
+        color: #c0392b;
+    }
+    
+    .notification-type.notice {
+        background-color: rgba(243, 156, 18, 0.1);
+        color: #f39c12;
+    }
+    
+    .notification-type.payment_reminder {
+        background-color: rgba(39, 174, 96, 0.1);
+        color: #27ae60;
+    }
+    
+    .notification-type.puc_expiry,
+    .notification-type.reg_expiry {
+        background-color: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        background-color: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: #3d84ff;
+        margin-bottom: 20px;
+        opacity: 0.7;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .action-btn {
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+    
+    .action-btn i {
+        font-size: 1rem;
+    }
+    
+    .primary-btn {
+        background: linear-gradient(90deg, #3d84ff, #63d1ff);
+        color: white;
+        border: none;
+    }
+    
+    .primary-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(61, 132, 255, 0.4);
+        color: white;
+    }
+    
+    .secondary-btn {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #f5f5f5;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .secondary-btn:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        transform: translateY(-3px);
+    }
+    
+    /* Touch-friendly improvements */
+    @media (hover: none) {
+        .notification-item:active {
+            background-color: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn:active, .home-link:active {
+            transform: scale(0.95);
+        }
+    }
+    
+    /* Notification filters - hidden as per user request */
+    .notification-filters {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="circle circle-1"></div>
+<div class="circle circle-2"></div>
+
+<!-- Enhanced Background Blur Effects -->
+<div class="bg-blur blur-1"></div>
+<div class="bg-blur blur-2"></div>
+<div class="bg-blur blur-3"></div>
+
+<!-- Bootstrap Header -->
+<header class="custom-header py-3">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <a href="/" class="logo">
+                    <i class="fas fa-car-side"></i>
+                    <h1>AutoSphere</h1>
+                </a>
+            </div>
+            
+            <div class="col">
+                <form method="GET" action="{% url 'search_vehicle' %}" class="d-flex">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control search-input" placeholder="Enter vehicle registration number (e.g., KL 06 0001)" required>
+                        <button type="submit" class="btn search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="col-auto">
+                {% if user.is_authenticated %}
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Notification Button -->
+                    <a href="{% url 'notifications' %}" class="btn btn-link p-0 position-relative">
+                        <i class="fas fa-bell fs-5 text-light"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" id="notificationCount">0</span>
+                    </a>
+                    
+                    <div class="d-none d-md-flex align-items-center gap-2 text-light">
+                        <i class="fas fa-user-circle"></i>
+                        Hello, {{ user.username }}!
+                    </div>
+                    
+                    <form method="post" action="{% url 'logout' %}" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="d-none d-md-inline">Logout</span>
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="d-flex gap-2">
+                    <a href="{% url 'login' %}" class="btn nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span class="d-none d-md-inline">Login</span>
+                    </a>
+                    <a href="{% url 'register' %}" class="btn nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        <span class="d-none d-md-inline">Register</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <!-- Home link -->
+            <a href="{% url 'home' %}" class="home-link d-inline-flex">
+                <i class="fas fa-home"></i>
+                <span>Back to Home</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            {% if notifications and unread_count > 0 %}
+            <span class="notification-badge">{{ unread_count }} unread</span>
+            {% endif %}
+            
+            {% if notifications %}
+            <div>
+                <form action="{% url 'mark_all_notifications_read' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn secondary-btn">
+                        <i class="fas fa-check-double"></i> Mark All as Read
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if notifications %}
+    <div class="row">
+        {% for notification in notifications %}
+        <div class="col-12 mb-3">
+            <a href="{% url 'notification_detail' notification.id %}" class="text-decoration-none">
+                <div class="notification-item p-3 {% if not notification.is_read %}unread{% endif %}">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="notification-icon {{ notification.notification_type }}">
+                                {% if notification.notification_type == 'fine' %}
+                                    <i class="fas fa-exclamation-circle"></i>
+                                {% elif notification.notification_type == 'blacklist' %}
+                                    <i class="fas fa-ban"></i>
+                                {% elif notification.notification_type == 'notice' %}
+                                    <i class="fas fa-bullhorn"></i>
+                                {% elif notification.notification_type == 'payment_reminder' %}
+                                    <i class="fas fa-money-bill-wave"></i>
+                                {% elif notification.notification_type == 'puc_expiry' %}
+                                    <i class="fas fa-calendar-times"></i>
+                                {% elif notification.notification_type == 'reg_expiry' %}
+                                    <i class="fas fa-id-card"></i>
+                                {% else %}
+                                    <i class="fas fa-bell"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h5 class="notification-title mb-2">{{ notification.title }}</h5>
+                            <p class="notification-message mb-2">{{ notification.message }}</p>
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <span class="notification-time">
+                                    <i class="far fa-clock"></i>
+                                    {{ notification.created_at|timesince }} ago
+                                </span>
+                                <span class="notification-type {{ notification.notification_type }} mt-2 mt-sm-0">
+                                    {{ notification.get_notification_type_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if notifications.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Notification pagination">
+                <ul class="pagination justify-content-center">
+                    {% if notifications.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link bg-transparent text-light" href="?page={{ notifications.previous_page_number }}{% if filter_type %}&type={{ filter_type }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in notifications.paginator.page_range %}
+                        {% if notifications.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link bg-primary border-primary">{{ i }}</span>
+                        </li>
+                        {% elif i > notifications.number|add:'-3' and i < notifications.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link bg-transparent text-light" href="?page={{ i }}{% if filter_type %}&type={{ filter_type }}{% endif %}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if notifications.has_next %}
+                    <li class="page-item">
+                        <a class="page-link bg-transparent text-light" href="?page={{ notifications.next_page_number }}{% if filter_type %}&type={{ filter_type }}{% endif %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="far fa-bell-slash"></i>
+                <h2 class="mb-3">No notifications yet</h2>
+                <p class="text-muted mb-4">You don't have any notifications at the moment. Check back later!</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to update notification count
+        function updateNotificationCount() {
+            fetch('/api/notifications/count/')
+                .then(response => response.json())
+                .then(data => {
+                    const countElement = document.getElementById('notificationCount');
+                    if (countElement) {
+                        countElement.textContent = data.count;
+                        
+                        // Hide count if zero
+                        if (data.count === 0) {
+                            countElement.style.display = 'none';
+                        } else {
+                            countElement.style.display = 'block';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching notification count:', error));
+        }
+        
+        // Update count on page load
+        updateNotificationCount();
+        
+        // Update count every 30 seconds
+        setInterval(updateNotificationCount, 30000);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoSphere - {{ notice.title }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        function googleTranslateElementInit() {
+            // Remove the existing Google Translate initialization
+            // We'll implement a custom translation approach for specific content only
+        }
+        
+        // Initialize content translation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create translate buttons
+            createTranslationButtons();
+        });
+        
+        function createTranslationButtons() {
+            var contentDiv = document.getElementById('notice-content');
+            
+            // Save the original content
+            var originalContent = contentDiv.innerHTML;
+            contentDiv.setAttribute('data-original-content', originalContent);
+            
+            // Create language buttons container
+            var langButtons = document.createElement('div');
+            langButtons.className = 'language-buttons';
+            
+            // Create English button
+            var enButton = document.createElement('button');
+            enButton.className = 'lang-btn active';
+            enButton.innerHTML = '<i class="fas fa-globe-americas"></i> English';
+            enButton.onclick = function() {
+                contentDiv.innerHTML = contentDiv.getAttribute('data-original-content');
+                setActiveButton(this);
+            };
+            
+            // Create Malayalam button
+            var mlButton = document.createElement('button');
+            mlButton.className = 'lang-btn';
+            mlButton.innerHTML = '<i class="fas fa-globe-asia"></i> മലയാളം';
+            mlButton.onclick = function() {
+                if (!this.classList.contains('active')) {
+                    translateContent(contentDiv, 'ml');
+                    setActiveButton(this);
+                }
+            };
+            
+            // Add buttons to container
+            langButtons.appendChild(enButton);
+            langButtons.appendChild(mlButton);
+            
+            // Insert buttons into the DOM
+            var translationContainer = document.querySelector('.translate-container');
+            translationContainer.innerHTML = '';
+            translationContainer.appendChild(langButtons);
+        }
+        
+        function setActiveButton(button) {
+            // Remove active class from all buttons
+            var buttons = document.querySelectorAll('.lang-btn');
+            buttons.forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            button.classList.add('active');
+        }
+        
+        function translateContent(element, targetLang) {
+            // Show loading indicator
+            var loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'translation-loading';
+            loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Translating...';
+            element.innerHTML = '';
+            element.appendChild(loadingIndicator);
+            
+            // Get original content
+            var originalText = element.getAttribute('data-original-content');
+            
+            // Use Google Translate API with a fetch request
+            fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(originalText)}`)
+                .then(response => response.json())
+                .then(data => {
+                    var translatedText = '';
+                    
+                    // Extract translated text from the response
+                    if (data && data[0]) {
+                        data[0].forEach(function(item) {
+                            if (item[0]) {
+                                translatedText += item[0];
+                            }
+                        });
+                    }
+                    
+                    // Update the content with translated text
+                    if (translatedText) {
+                        element.innerHTML = translatedText;
+                    } else {
+                        // Fallback if translation fails
+                        element.innerHTML = originalText;
+                        alert('Translation failed. Please try again later.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Translation error:', error);
+                    element.innerHTML = originalText;
+                    alert('Translation failed. Please try again later.');
+                });
+        }
+
+        function speakText(text, rate = 1) {
+            if ('speechSynthesis' in window) {
+                // Stop any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Check which language is currently active
+                var activeButton = document.querySelector('.lang-btn.active');
+                if (activeButton && activeButton.textContent.includes('മലയാളം')) {
+                    utterance.lang = 'ml-IN';
+                } else {
+                    utterance.lang = 'en-US';
+                }
+                
+                utterance.rate = rate;
+                
+                // Update UI to show speaking status
+                document.getElementById('speak-status').textContent = 'Speaking...';
+                document.getElementById('speak-icon').className = 'fas fa-volume-up fa-pulse';
+                
+                // When speech ends
+                utterance.onend = function() {
+                    document.getElementById('speak-status').textContent = 'Listen';
+                    document.getElementById('speak-icon').className = 'fas fa-headphones';
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Sorry, your browser does not support text-to-speech!');
+            }
+        }
+        
+        function adjustSpeechRate(direction) {
+            const rateElement = document.getElementById('speech-rate');
+            let currentRate = parseFloat(rateElement.textContent);
+            
+            if (direction === 'up' && currentRate < 2) {
+                currentRate += 0.1;
+            } else if (direction === 'down' && currentRate > 0.5) {
+                currentRate -= 0.1;
+            }
+            
+            // Round to 1 decimal place and update display
+            currentRate = Math.round(currentRate * 10) / 10;
+            rateElement.textContent = currentRate.toFixed(1);
+            
+            return currentRate;
+        }
+        
+        function stopSpeaking() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                document.getElementById('speak-status').textContent = 'Listen';
+                document.getElementById('speak-icon').className = 'fas fa-headphones';
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body {
+            background-color: #121212;
+            background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            padding: 1.5rem 2rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideIn 0.5s ease-out;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .logo:hover {
+            transform: scale(1.02);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: #3d84ff;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: #f5f5f5;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover {
+            background-position: right center;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(61, 132, 255, 0.2);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #f5f5f5;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+            border: 1px solid #2a2a2a;
+        }
+
+        .back-link:hover {
+            background-color: #242424;
+            transform: translateY(-1px);
+            border-color: #3d3d3d;
+        }
+
+        .notice-card {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+            animation: slideIn 0.7s ease-out;
+            border: 1px solid #2a2a2a;
+        }
+
+        .notice-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #2a2a2a;
+            background-color: #1a1a1a;
+        }
+
+        .notice-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+        }
+
+        .notice-type-general {
+            background-color: rgba(61, 132, 255, 0.1);
+            color: #3d84ff;
+        }
+
+        .notice-type-important {
+            background-color: rgba(255, 61, 110, 0.1);
+            color: #ff3d6e;
+        }
+
+        .notice-type-alert {
+            background-color: rgba(255, 177, 61, 0.1);
+            color: #ffb13d;
+        }
+
+        .notice-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #f5f5f5;
+        }
+
+        .notice-meta {
+            display: flex;
+            gap: 1.5rem;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .notice-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notice-content {
+            padding: 1.5rem;
+            color: #d0d0d0;
+            line-height: 1.6;
+            background-color: #1a1a1a;
+        }
+
+        .notice-content p {
+            margin-bottom: 1rem;
+        }
+
+        .notice-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .notice-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #2a2a2a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #121212;
+        }
+
+        .notice-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .status-active {
+            color: #4caf50;
+        }
+
+        .status-inactive {
+            color: #ff3d3d;
+        }
+
+        .status-expired {
+            color: #ffb13d;
+        }
+
+        .notice-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f5f5f5;
+        }
+
+        .btn-outline:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+            border: none;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-position: right center;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(61, 132, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(90deg, #ff3d3d, #ff7070);
+            background-size: 200% auto;
+            border: none;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-position: right center;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(255, 61, 61, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            main {
+                padding: 1.5rem;
+            }
+
+            .notice-title {
+                font-size: 1.5rem;
+            }
+
+            .notice-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .notice-footer {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .notice-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .btn {
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        .accessibility-toolbar {
+            display: flex;
+            align-items: stretch;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            border: 1px solid #2a2a2a;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .accessibility-section {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .accessibility-section:first-child {
+            border-right: 1px solid #2a2a2a;
+            padding-right: 1.5rem;
+        }
+        
+        .accessibility-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            color: #f5f5f5;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .accessibility-title i {
+            color: #3d84ff;
+        }
+        
+        .translate-container {
+            position: relative;
+            z-index: 100;
+        }
+        
+        .translate-label {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 1rem;
+        }
+        
+        .goog-te-gadget {
+            color: transparent !important;
+            position: relative;
+        }
+        
+        .custom-select-wrapper {
+            position: relative;
+            user-select: none;
+            width: 100%;
+        }
+        
+        .custom-select-trigger {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 1rem;
+            font-size: 0.95rem;
+            color: #f5f5f5;
+            background: #1e1e1e;
+            cursor: pointer;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-select-trigger:hover {
+            border-color: #3d84ff;
+            box-shadow: 0 0 0 2px rgba(61, 132, 255, 0.1);
+        }
+        
+        .custom-select-wrapper.open .custom-select-trigger {
+            border-color: #3d84ff;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .custom-options {
+            position: absolute;
+            display: block;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1e1e1e;
+            border: 1px solid #3d84ff;
+            border-top: 0;
+            transition: all 0.3s ease-in-out;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-5px);
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+        
+        .custom-select-wrapper.open .custom-options {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+        
+        .custom-option {
+            position: relative;
+            display: block;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #d0d0d0;
+        }
+        
+        .custom-option:hover {
+            background: #292929;
+            color: #3d84ff;
+        }
+        
+        .custom-option:first-child {
+            border-radius: 4px 4px 0 0;
+            font-weight: 500;
+            color: #777;
+        }
+        
+        .custom-option:last-child {
+            border-radius: 0 0 4px 4px;
+            border-bottom: 0;
+        }
+        
+        /* Hide Google Translate elements */
+        .goog-te-banner-frame {
+            display: none !important;
+        }
+        
+        .goog-te-menu-value {
+            display: none !important;
+        }
+        
+        .VIpgJd-ZVi9od-l4eHX-hSRGPd {
+            display: none !important;
+        }
+        
+        /* Styling for translated content */
+        .translated-text {
+            border-left: 3px solid #3d84ff;
+            padding-left: 15px;
+            margin: 10px 0;
+        }
+        
+        /* Custom scrollbar for language options */
+        .custom-options::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-options::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 0 0 8px 0;
+        }
+        
+        .custom-options::-webkit-scrollbar-thumb {
+            background: #3d3d3d;
+            border-radius: 3px;
+        }
+        
+        .custom-options::-webkit-scrollbar-thumb:hover {
+            background: #3d84ff;
+        }
+        
+        /* New Translation Styling */
+        .language-buttons {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.2rem;
+            background-color: rgba(26, 26, 26, 0.9);
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #d0d0d0;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lang-btn:hover {
+            border-color: #3d84ff;
+            color: #f5f5f5;
+            transform: translateY(-2px);
+        }
+        
+        .lang-btn.active {
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+            color: #fff;
+            border-color: transparent;
+        }
+        
+        .translation-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            padding: 2rem;
+            color: #a0a0a0;
+            font-size: 1rem;
+        }
+        
+        .translation-loading i {
+            color: #3d84ff;
+        }
+        
+        /* Remove unnecessary Google Translate styles */
+        .goog-te-banner-frame,
+        .goog-te-menu-value,
+        .VIpgJd-ZVi9od-l4eHX-hSRGPd,
+        .goog-te-gadget,
+        .skiptranslate {
+            display: none !important;
+        }
+        
+        /* Update accessibility toolbar sections */
+        .accessibility-section:first-child {
+            border-right: 1px solid #2a2a2a;
+            padding-right: 1.5rem;
+        }
+        
+        /* Responsive styling adjustments */
+        @media (max-width: 768px) {
+            .language-buttons {
+                flex-direction: row;
+                width: 100%;
+            }
+            
+            .lang-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+        
+        /* Enhanced Listening Options Styling */
+        .speech-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .speech-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(61, 132, 255, 0.2);
+        }
+        
+        .speech-btn:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(61, 132, 255, 0.3);
+        }
+        
+        .speech-btn i {
+            font-size: 1.1rem;
+        }
+        
+        .speech-btn i.fa-headphones {
+            color: #ffffff;
+        }
+        
+        .speech-btn i.fa-volume-up {
+            color: #ffffff;
+        }
+        
+        .speech-btn i.fa-pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .speech-options {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border: 1px solid #2a2a2a;
+        }
+        
+        .speech-rate-control {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex: 1;
+        }
+        
+        .rate-label {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-right: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .rate-label i {
+            color: #3d84ff;
+        }
+        
+        #speech-rate {
+            min-width: 28px;
+            text-align: center;
+            color: #f5f5f5;
+            font-weight: 500;
+            font-size: 0.9rem;
+            background-color: rgba(61, 132, 255, 0.1);
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .rate-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            color: #f5f5f5;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .rate-btn:hover {
+            background-color: rgba(61, 132, 255, 0.2);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+        
+        .rate-btn i {
+            font-size: 0.7rem;
+        }
+        
+        .stop-btn {
+            background-color: rgba(255, 59, 59, 0.1);
+            color: #ff3b3b;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .stop-btn:hover {
+            background-color: rgba(255, 59, 59, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .stop-btn i {
+            color: #ff3b3b;
+        }
+        
+        /* Updated responsive styling */
+        @media (max-width: 768px) {
+            .speech-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .speech-rate-control {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fas fa-car"></i>
+            <h1>AutoSphere</h1>
+        </a>
+        <nav class="nav-links">
+            {% if user.is_authenticated %}
+                {% if user.is_rto %}
+                <a href="{% url 'rto_home' %}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                {% else %}
+                <a href="{% url 'home' %}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+                {% endif %}
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        <a href="{% url 'notice_list' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Notices
+        </a>
+
+        <div class="accessibility-toolbar">
+            <div class="accessibility-section">
+                <div class="accessibility-title">
+                    <i class="fas fa-language"></i>
+                    <span>Language Options</span>
+                </div>
+                <div class="translate-container">
+                    <div class="translate-label">Translate this notice to your preferred language:</div>
+                    <div id="google_translate_element"></div>
+                </div>
+            </div>
+            
+            <div class="accessibility-section">
+                <div class="accessibility-title">
+                    <i class="fas fa-assistive-listening-systems"></i>
+                    <span>Listening Options</span>
+                </div>
+                <div class="speech-controls">
+                    <button class="speech-btn" onclick="speakText(document.getElementById('notice-content').textContent, parseFloat(document.getElementById('speech-rate').textContent))">
+                        <i id="speak-icon" class="fas fa-headphones"></i>
+                        <span id="speak-status">Listen</span>
+                    </button>
+                    
+                    <div class="speech-options">
+                        <div class="speech-rate-control">
+                            <span class="rate-label"><i class="fas fa-tachometer-alt"></i> Speed:</span>
+                            <button class="rate-btn" onclick="adjustSpeechRate('down')">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span id="speech-rate">1.0</span>
+                            <button class="rate-btn" onclick="adjustSpeechRate('up')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <button class="stop-btn" onclick="stopSpeaking()">
+                            <i class="fas fa-stop-circle"></i>
+                            <span>Stop</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notice-card">
+            <div class="notice-header">
+                <div class="notice-type notice-type-{{ notice.notice_type|lower }}">
+                    {% if notice.notice_type == 'General' %}
+                    <i class="fas fa-bullhorn"></i>
+                    {% elif notice.notice_type == 'Important' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% elif notice.notice_type == 'Alert' %}
+                    <i class="fas fa-bell"></i>
+                    {% endif %}
+                    {{ notice.notice_type }}
+                </div>
+                <h1 class="notice-title">{{ notice.title }}</h1>
+                <div class="notice-meta">
+                    <div class="notice-meta-item">
+                        <i class="fas fa-user"></i>
+                        <span>{{ notice.created_by.username }}</span>
+                    </div>
+                    <div class="notice-meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>{{ notice.created_at|date:"F d, Y" }}</span>
+                    </div>
+                    {% if notice.expires_at %}
+                    <div class="notice-meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Expires: {{ notice.expires_at|date:"F d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="notice-content" id="notice-content">
+                {{ notice.content|linebreaks }}
+            </div>
+            <div class="notice-footer">
+                <div class="notice-status">
+                    {% if notice.is_expired %}
+                    <div class="status-expired">
+                        <i class="fas fa-clock"></i>
+                        <span>Expired</span>
+                    </div>
+                    {% elif notice.is_active %}
+                    <div class="status-active">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Active</span>
+                    </div>
+                    {% else %}
+                    <div class="status-inactive">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Inactive</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if user.is_rto and notice.created_by == user %}
+                <div class="notice-actions">
+                    <a href="{% url 'edit_notice' notice.id %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Edit
+                    </a>
+                    <a href="{% url 'delete_notice' notice.id %}" class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                        Delete
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</body>
+</html> 

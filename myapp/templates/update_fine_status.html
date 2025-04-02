@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Fine Status | AutoSphere</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .logo i {
+            margin-right: 0.5rem;
+            font-size: 1.75rem;
+        }
+        
+        nav a {
+            margin-left: 1.5rem;
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover {
+            color: var(--primary-color);
+        }
+        
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .fine-details {
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .fine-details h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .detail-item {
+            margin-bottom: 0.75rem;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-unpaid {
+            background-color: #ffe5e5;
+            color: #d63031;
+        }
+        
+        .status-paid {
+            background-color: #e6ffec;
+            color: #27ae60;
+        }
+        
+        .status-contested {
+            background-color: #fff7e6;
+            color: #e67e22;
+        }
+        
+        .status-waived {
+            background-color: #e6f7ff;
+            color: #0984e3;
+        }
+        
+        .update-form {
+            margin-top: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.3s;
+            font-size: 1rem;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0069d9;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            main {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            nav {
+                margin-top: 1rem;
+            }
+            
+            nav a {
+                margin-left: 0.75rem;
+                margin-right: 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-car"></i>
+            <span>AutoSphere</span>
+        </div>
+        <nav>
+            <a href="{% url 'rto_home' %}"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{% url 'rto_fine_list' %}"><i class="fas fa-list"></i> Manage Fines</a>
+        </nav>
+    </header>
+    
+    <main>
+        <h1>{{ title }}</h1>
+        
+        <div class="fine-details">
+            <h2>Fine Information</h2>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Registration Number</span>
+                    <span class="detail-value">{{ fine.vehicle.registration_number }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Vehicle</span>
+                    <span class="detail-value">{{ fine.vehicle.manufacturer }} {{ fine.vehicle.model }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Owner</span>
+                    <span class="detail-value">{{ fine.vehicle.owner_name }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Violation Type</span>
+                    <span class="detail-value">{{ fine.violation_type }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Location</span>
+                    <span class="detail-value">{{ fine.location }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Fine Amount</span>
+                    <span class="detail-value">₹{{ fine.fine_amount }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Imposed Date</span>
+                    <span class="detail-value">{{ fine.imposed_date|date:"d M Y" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Due Date</span>
+                    <span class="detail-value">{{ fine.due_date|date:"d M Y" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Current Status</span>
+                    <span class="detail-value">
+                        <span class="status-badge status-{{ fine.payment_status|lower }}">
+                            {{ fine.payment_status }}
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" class="update-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="status">Update Status</label>
+                <select name="status" id="status" required>
+                    <option value="">Select new status</option>
+                    {% for status_code, status_name in statuses %}
+                    <option value="{{ status_code }}" {% if fine.payment_status == status_code %}selected{% endif %}>
+                        {{ status_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">Update Status</button>
+                <a href="{% url 'rto_fine_list' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </main>
+</body>
+</html> 

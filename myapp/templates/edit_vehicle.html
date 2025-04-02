@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoSphere - Edit Vehicle Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: #3d84ff;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-link {
+            color: #f5f5f5;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-position: right center;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(61, 132, 255, 0.2);
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-title i {
+            color: #3d84ff;
+        }
+
+        .edit-form-container {
+            background-color: rgba(25, 25, 25, 0.8);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .vehicle-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+
+        .vehicle-reg {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f5f5f5;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: #f5f5f5;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3d84ff;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(61, 132, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f5f5f5;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(61, 132, 255, 0.1);
+            color: #3d84ff;
+            border: 1px solid rgba(61, 132, 255, 0.3);
+            border-radius: 6px;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(61, 132, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #5fd778;
+        }
+
+        .alert-error {
+            background-color: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #ff6b6b;
+        }
+
+        .readonly-field {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'rto_home' %}" class="logo">
+            <i class="fas fa-car"></i>
+            <h1>AutoSphere</h1>
+        </a>
+        <div class="nav-links">
+            <a href="{% url 'rto_home' %}" class="nav-link">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <h1 class="page-title">
+            <i class="fas fa-edit"></i> Edit Vehicle Details
+        </h1>
+
+        <div class="edit-form-container">
+            <div class="vehicle-header">
+                <i class="fas fa-car" style="font-size: 1.8rem; color: #3d84ff;"></i>
+                <h2 class="vehicle-reg">{{ vehicle.registration_number }}</h2>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="id_registration_number">Registration Number</label>
+                        <input type="text" name="registration_number" id="id_registration_number" class="form-control readonly-field" value="{{ vehicle.registration_number }}" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_owner_name">Owner Name</label>
+                        <input type="text" name="owner_name" id="id_owner_name" class="form-control" value="{{ form.owner_name.value }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_chassis_number">Chassis Number</label>
+                        <input type="text" name="chassis_number" id="id_chassis_number" class="form-control" value="{{ form.chassis_number.value }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_manufacturer">Manufacturer</label>
+                        <input type="text" name="manufacturer" id="id_manufacturer" class="form-control" value="{{ form.manufacturer.value }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_model">Model</label>
+                        <input type="text" name="model" id="id_model" class="form-control" value="{{ form.model.value }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_color">Color</label>
+                        <input type="text" name="color" id="id_color" class="form-control" value="{{ form.color.value }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_fuel_type">Fuel Type</label>
+                        <select name="fuel_type" id="id_fuel_type" class="form-control" required>
+                            <option value="Petrol" {% if form.fuel_type.value == 'Petrol' %}selected{% endif %}>Petrol</option>
+                            <option value="Diesel" {% if form.fuel_type.value == 'Diesel' %}selected{% endif %}>Diesel</option>
+                            <option value="Electric" {% if form.fuel_type.value == 'Electric' %}selected{% endif %}>Electric</option>
+                            <option value="CNG" {% if form.fuel_type.value == 'CNG' %}selected{% endif %}>CNG</option>
+                            <option value="Hybrid" {% if form.fuel_type.value == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_registration_validity_date">Registration Validity Date</label>
+                        <input type="date" name="registration_validity_date" id="id_registration_validity_date" class="form-control" value="{{ form.registration_validity_date.value|date:'Y-m-d' }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_puc_validity_date">PUC Validity Date</label>
+                        <input type="date" name="puc_validity_date" id="id_puc_validity_date" class="form-control" value="{{ form.puc_validity_date.value|date:'Y-m-d' }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_blacklist_status">Blacklist Status</label>
+                        <select name="blacklist_status" id="id_blacklist_status" class="form-control">
+                            <option value="False" {% if form.blacklist_status.value == False %}selected{% endif %}>Not Blacklisted</option>
+                            <option value="True" {% if form.blacklist_status.value == True %}selected{% endif %}>Blacklisted</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="javascript:history.back()" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

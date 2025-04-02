@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoSphere - Impose Fine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            padding: 1.5rem 2rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: #3d84ff;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #f5f5f5;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+        }
+
+        .nav-link:hover {
+            background-position: right center;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .form-container {
+            background-color: rgba(25, 25, 25, 0.7);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form-header p {
+            color: #a0a0a0;
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            color: #f5f5f5;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: #f5f5f5;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: rgba(61, 132, 255, 0.5);
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .form-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0a0a0'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5rem;
+            padding-right: 2.5rem;
+        }
+
+        .form-select option {
+            background-color: #1a1a1a;
+            color: #f5f5f5;
+        }
+
+        .form-hint {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+
+        .form-error {
+            color: #ff3b3b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .vehicle-lookup-container {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .vehicle-input {
+            flex: 1;
+        }
+
+        .lookup-btn {
+            background-color: rgba(61, 132, 255, 0.1);
+            color: #3d84ff;
+            border: 1px solid rgba(61, 132, 255, 0.3);
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .lookup-btn:hover {
+            background-color: rgba(61, 132, 255, 0.15);
+            border-color: rgba(61, 132, 255, 0.5);
+        }
+
+        .vehicle-preview {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: none;
+        }
+
+        .vehicle-preview.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .vehicle-preview-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .vehicle-preview-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .vehicle-preview-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .vehicle-preview-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .preview-label {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+
+        .preview-value {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-position: right center;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(61, 132, 255, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #f5f5f5;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+
+        .alert-error {
+            background-color: rgba(255, 59, 59, 0.1);
+            border: 1px solid rgba(255, 59, 59, 0.3);
+            color: #ff3b3b;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            main {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .vehicle-lookup-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .lookup-btn {
+                width: 100%;
+                margin-top: 0.5rem;
+                justify-content: center;
+            }
+
+            .vehicle-preview-details {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'rto_home' %}" class="logo">
+            <i class="fas fa-car"></i>
+            <h1>AutoSphere</h1>
+        </a>
+        <nav class="nav-links">
+            <a href="{% url 'rto_home' %}" class="nav-link">
+                <i class="fas fa-home"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'rto_fine_list' %}" class="nav-link">
+                <i class="fas fa-list"></i>
+                Manage Fines
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <h1 class="page-title">Impose Fine</h1>
+
+        <div class="form-container">
+            <div class="form-header">
+                <p>Enter the vehicle's registration number and complete the fine details below. The system will automatically normalize registration numbers and find matches in various formats (e.g., 'KL061', 'KL06001', 'KL 06 0001').</p>
+            </div>
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-car"></i>
+                        Vehicle Information
+                    </h3>
+                    <div class="form-group">
+                        <label for="{{ form.vehicle_registration_number.id_for_label }}" class="form-label">Vehicle Registration Number</label>
+                        <div class="vehicle-lookup-container">
+                            <div class="vehicle-input">
+                                {{ form.vehicle_registration_number }}
+                                <span class="form-hint">Enter vehicle registration number in any format (e.g., 'KL061', 'KL 06 0001', 'kl06a1')</span>
+                                {% if form.vehicle_registration_number.errors %}
+                                <div class="form-error">{{ form.vehicle_registration_number.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Fine Details
+                    </h3>
+                    <div class="form-group">
+                        <label for="{{ form.violation_type.id_for_label }}" class="form-label">Violation Type</label>
+                        {{ form.violation_type }}
+                        {% if form.violation_type.errors %}
+                        <div class="form-error">{{ form.violation_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                        <span class="form-hint">Provide details about the violation</span>
+                        {% if form.description.errors %}
+                        <div class="form-error">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                        {{ form.location }}
+                        <span class="form-hint">Where the violation occurred</span>
+                        {% if form.location.errors %}
+                        <div class="form-error">{{ form.location.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.violation_document.id_for_label }}" class="form-label">Upload Violation Document</label>
+                        {{ form.violation_document }}
+                        <span class="form-hint">Upload a PDF document related to the violation (optional)</span>
+                        {% if form.violation_document.errors %}
+                        <div class="form-error">{{ form.violation_document.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-rupee-sign"></i>
+                        Payment Information
+                    </h3>
+                    <div class="form-group">
+                        <label for="{{ form.fine_amount.id_for_label }}" class="form-label">Fine Amount (₹)</label>
+                        {{ form.fine_amount }}
+                        <span class="form-hint">Amount must be greater than zero</span>
+                        {% if form.fine_amount.errors %}
+                        <div class="form-error">{{ form.fine_amount.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date</label>
+                        {{ form.due_date }}
+                        <span class="form-hint">Last date for payment</span>
+                        {% if form.due_date.errors %}
+                        <div class="form-error">{{ form.due_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-gavel"></i>
+                        Impose Fine
+                    </button>
+                    <a href="{% url 'rto_fine_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Optional: JavaScript to enhance the user experience
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any JavaScript enhancements here if needed
+            
+            // Example: Add visual feedback when the user enters a registration number
+            const regInput = document.getElementById('{{ form.vehicle_registration_number.id_for_label }}');
+            
+            if (regInput) {
+                regInput.addEventListener('input', function() {
+                    // Format the registration number as the user types
+                    let value = this.value.toUpperCase();
+                    
+                    // Keep the formatting logic minimal to avoid confusion
+                    if (value.length > 0) {
+                        // Just ensure it's uppercase for better visibility
+                        this.value = value;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

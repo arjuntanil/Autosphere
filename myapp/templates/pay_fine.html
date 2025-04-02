@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pay Fine - Auto Sphere{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #1a1a2e, #16213e, #1a1a2e);
+        color: #e3e3e3;
+    }
+    
+    .card {
+        background-color: rgba(30, 30, 47, 0.8);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+    
+    .card-header {
+        background-color: rgba(36, 36, 56, 0.8);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px 15px 0 0 !important;
+    }
+    
+    .payment-info {
+        padding: 20px;
+        background-color: rgba(40, 40, 61, 0.5);
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #4c79fe, #2663eb);
+        border: none;
+        box-shadow: 0 4px 15px rgba(38, 99, 235, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #2663eb, #4c79fe);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(38, 99, 235, 0.6);
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(45deg, #6c757d, #495057);
+        border: none;
+        box-shadow: 0 4px 15px rgba(73, 80, 87, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: linear-gradient(45deg, #495057, #6c757d);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(73, 80, 87, 0.6);
+    }
+    
+    .fine-amount {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .vehicle-info, .violation-info {
+        background-color: rgba(40, 40, 61, 0.5);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .razorpay-payment-button {
+        background: linear-gradient(45deg, #4c79fe, #2663eb);
+        color: white;
+        font-weight: bold;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+        box-shadow: 0 4px 15px rgba(38, 99, 235, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .razorpay-payment-button:hover {
+        background: linear-gradient(45deg, #2663eb, #4c79fe);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(38, 99, 235, 0.6);
+    }
+
+    .payment-icon {
+        font-size: 1.5rem;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    .alert-info {
+        background-color: rgba(23, 162, 184, 0.2);
+        border-color: rgba(23, 162, 184, 0.3);
+        color: #9fcdff;
+    }
+
+    .alert-warning {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-color: rgba(255, 193, 7, 0.3);
+        color: #fff3cd;
+    }
+
+    /* Loading animation */
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .loading-spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 4px solid #2663eb;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-money-bill-wave payment-icon"></i>Pay Fine</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'info' %}alert-info{% else %}alert-warning{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="payment-info">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h4>Fine Amount</h4>
+                                <div class="fine-amount">₹{{ fine.fine_amount }}</div>
+                            </div>
+                            <div class="col-md-6 text-md-right">
+                                <h4>Fine Date</h4>
+                                <p class="mb-0">{{ fine.date_issued|date:"F d, Y" }}</p>
+                            </div>
+                        </div>
+
+                        <div class="vehicle-info">
+                            <h4><i class="fas fa-car"></i> Vehicle Information</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Registration Number:</strong><br> {{ fine.vehicle.registration_number }}</p>
+                                    <p><strong>Vehicle Type:</strong><br> {{ fine.vehicle.vehicle_type }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Make:</strong><br> {{ fine.vehicle.make }}</p>
+                                    <p><strong>Model:</strong><br> {{ fine.vehicle.model }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="violation-info">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Violation Information</h4>
+                            <p><strong>Violation Type:</strong><br> {{ fine.violation_type }}</p>
+                            <p><strong>Violation Location:</strong><br> {{ fine.location }}</p>
+                            <p><strong>Description:</strong><br> {{ fine.description }}</p>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> You are about to make a payment for the fine amount of <strong>₹{{ fine.fine_amount }}</strong>. This amount is non-refundable once paid. Please verify the details before proceeding.
+                        </div>
+                    </div>
+
+                    <div id="payment-form">
+                        <button id="payment-button" class="razorpay-payment-button">
+                            <i class="fas fa-credit-card"></i> Pay Now ₹{{ fine.fine_amount }}
+                        </button>
+                    </div>
+
+                    <div id="loading" class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Processing your payment. Please wait...</p>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'fine_details' fine_id=fine.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Fine Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var options = {
+            "key": "{{ razorpay_key_id }}",
+            "amount": "{{ amount }}",
+            "currency": "{{ currency }}",
+            "name": "{{ company_name }}",
+            "description": "{{ description }}",
+            "image": "{{ company_logo }}",
+            "order_id": "{{ order_id }}",
+            "handler": function (response) {
+                // Show loading animation
+                document.getElementById('payment-form').style.display = 'none';
+                document.getElementById('loading').style.display = 'block';
+                
+                // Create a form to submit the payment data
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = "{{ callback_url }}";
+                
+                // Add payment details as hidden fields
+                var hiddenFields = {
+                    'razorpay_payment_id': response.razorpay_payment_id,
+                    'razorpay_order_id': response.razorpay_order_id,
+                    'razorpay_signature': response.razorpay_signature
+                };
+                
+                Object.keys(hiddenFields).forEach(function(key) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = hiddenFields[key];
+                    form.appendChild(input);
+                });
+                
+                // Append form to body and submit
+                document.body.appendChild(form);
+                form.submit();
+            },
+            "prefill": {
+                "name": "{{ name }}",
+                "email": "{{ email }}",
+                "contact": "{{ contact }}"
+            },
+            "notes": {
+                "fine_id": "{{ fine.id }}",
+                "vehicle_number": "{{ fine.vehicle.registration_number }}",
+                "violation_type": "{{ fine.violation_type }}"
+            },
+            "theme": {
+                "color": "#2663eb"
+            }
+        };
+        
+        var rzp = new Razorpay(options);
+        document.getElementById('payment-button').onclick = function(e) {
+            rzp.open();
+            e.preventDefault();
+        };
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,32 @@
+# Django Media Configuration Instructions
+
+## 1. Add to settings.py
+Add the following lines to your autosphere/settings.py file:
+
+```python
+# Media files (Uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+```
+
+## 2. Update autosphere/urls.py
+Add the following imports at the top of the file:
+
+```python
+from django.conf import settings
+from django.conf.urls.static import static
+```
+
+Then add this code at the end of the file, after the urlpatterns list:
+
+```python
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+## 3. Restart the server
+After making these changes, restart your Django server:
+
+```
+python manage.py runserver
+```

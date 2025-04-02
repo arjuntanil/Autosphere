@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Receipt - Auto Sphere{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #1a1a2e, #16213e, #1a1a2e);
+        color: #e3e3e3;
+    }
+    
+    .receipt-container {
+        max-width: 800px;
+        margin: 30px auto;
+    }
+    
+    .receipt {
+        background-color: rgba(30, 30, 47, 0.8);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .receipt-header {
+        background-color: rgba(36, 36, 56, 0.8);
+        color: #fff;
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+    }
+    
+    .receipt-title {
+        margin: 0;
+        text-align: center;
+        font-size: 24px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .receipt-subtitle {
+        text-align: center;
+        font-size: 16px;
+        margin-top: 5px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .receipt-logo {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 60px;
+        height: auto;
+    }
+    
+    .receipt-watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 150px;
+        opacity: 0.03;
+        color: #fff;
+        z-index: 0;
+        pointer-events: none;
+    }
+    
+    .receipt-body {
+        padding: 30px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .receipt-section {
+        margin-bottom: 30px;
+        background-color: rgba(40, 40, 61, 0.5);
+        border-radius: 10px;
+        padding: 20px;
+    }
+    
+    .receipt-section h3 {
+        margin-top: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        color: #fff;
+    }
+    
+    .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    
+    .receipt-label {
+        font-weight: bold;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .receipt-value {
+        text-align: right;
+        color: #fff;
+    }
+    
+    .receipt-total {
+        font-size: 24px;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .receipt-footer {
+        background-color: rgba(36, 36, 56, 0.8);
+        padding: 15px;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .receipt-barcode {
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .receipt-barcode img {
+        max-width: 80%;
+        height: auto;
+    }
+    
+    .receipt-stamp {
+        position: relative;
+        text-align: center;
+        margin: 30px 0;
+    }
+    
+    .stamp {
+        display: inline-block;
+        padding: 10px 20px;
+        border: 3px solid #28a745;
+        color: #28a745;
+        border-radius: 10px;
+        font-size: 24px;
+        font-weight: bold;
+        text-transform: uppercase;
+        transform: rotate(-15deg);
+        opacity: 0.8;
+    }
+    
+    .receipt-notes {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 20px;
+        text-align: center;
+        font-style: italic;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #4c79fe, #2663eb);
+        border: none;
+        box-shadow: 0 4px 15px rgba(38, 99, 235, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #2663eb, #4c79fe);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(38, 99, 235, 0.6);
+    }
+    
+    .receipt-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 15px;
+    }
+    
+    @media print {
+        body {
+            background: white;
+            color: black;
+        }
+        
+        .receipt {
+            box-shadow: none;
+            border: 1px solid #ccc;
+        }
+        
+        .receipt-header, .receipt-footer {
+            background-color: #f8f9fa;
+            color: #000;
+        }
+        
+        .receipt-actions, .navbar, .footer {
+            display: none;
+        }
+        
+        .receipt-section {
+            background-color: #fff;
+            border: 1px solid #eee;
+        }
+        
+        .receipt-watermark {
+            opacity: 0.1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="receipt-container">
+    <div class="receipt">
+        <div class="receipt-header">
+            <img src="{% static 'images/logo.png' %}" alt="Auto Sphere Logo" class="receipt-logo">
+            <h1 class="receipt-title">Payment Receipt</h1>
+            <p class="receipt-subtitle">Auto Sphere - Vehicle Registration & Management System</p>
+        </div>
+        
+        <div class="receipt-body">
+            <div class="receipt-watermark">PAID</div>
+            
+            <div class="receipt-section">
+                <h3><i class="fas fa-info-circle"></i> Receipt Information</h3>
+                <div class="receipt-row">
+                    <div class="receipt-label">Receipt Number:</div>
+                    <div class="receipt-value">{{ fine.payment_receipt_number }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Date:</div>
+                    <div class="receipt-value">{{ date|date:"F d, Y, g:i A" }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Payment Method:</div>
+                    <div class="receipt-value">Online Payment (Razorpay)</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Transaction ID:</div>
+                    <div class="receipt-value">{{ payment.razorpay_payment_id }}</div>
+                </div>
+            </div>
+            
+            <div class="receipt-section">
+                <h3><i class="fas fa-user"></i> User Information</h3>
+                <div class="receipt-row">
+                    <div class="receipt-label">Name:</div>
+                    <div class="receipt-value">{{ user.get_full_name|default:user.username }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Email:</div>
+                    <div class="receipt-value">{{ user.email }}</div>
+                </div>
+                {% if user.phone_number %}
+                <div class="receipt-row">
+                    <div class="receipt-label">Phone:</div>
+                    <div class="receipt-value">{{ user.phone_number }}</div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="receipt-section">
+                <h3><i class="fas fa-car"></i> Vehicle Information</h3>
+                <div class="receipt-row">
+                    <div class="receipt-label">Registration Number:</div>
+                    <div class="receipt-value">{{ fine.vehicle.registration_number }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Make:</div>
+                    <div class="receipt-value">{{ fine.vehicle.make }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Model:</div>
+                    <div class="receipt-value">{{ fine.vehicle.model }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Vehicle Type:</div>
+                    <div class="receipt-value">{{ fine.vehicle.vehicle_type }}</div>
+                </div>
+            </div>
+            
+            <div class="receipt-section">
+                <h3><i class="fas fa-exclamation-triangle"></i> Fine Information</h3>
+                <div class="receipt-row">
+                    <div class="receipt-label">Fine ID:</div>
+                    <div class="receipt-value">{{ fine.id }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Violation Type:</div>
+                    <div class="receipt-value">{{ fine.violation_type }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Location:</div>
+                    <div class="receipt-value">{{ fine.location }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Date Issued:</div>
+                    <div class="receipt-value">{{ fine.date_issued|date:"F d, Y" }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Description:</div>
+                    <div class="receipt-value">{{ fine.description }}</div>
+                </div>
+            </div>
+            
+            <div class="receipt-section">
+                <h3><i class="fas fa-money-bill-wave"></i> Payment Details</h3>
+                <div class="receipt-row">
+                    <div class="receipt-label">Fine Amount:</div>
+                    <div class="receipt-value">₹{{ fine.fine_amount }}</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Tax:</div>
+                    <div class="receipt-value">₹0.00</div>
+                </div>
+                <div class="receipt-row">
+                    <div class="receipt-label">Processing Fee:</div>
+                    <div class="receipt-value">₹0.00</div>
+                </div>
+                <hr style="border-color: rgba(255, 255, 255, 0.1);">
+                <div class="receipt-row">
+                    <div class="receipt-label">Total Paid:</div>
+                    <div class="receipt-value receipt-total">₹{{ fine.fine_amount }}</div>
+                </div>
+            </div>
+            
+            <div class="receipt-stamp">
+                <div class="stamp">Paid</div>
+            </div>
+            
+            <p class="receipt-notes">
+                This is an official receipt for your fine payment. Please keep this for your records.
+                For any inquiries regarding this payment, please contact Auto Sphere support with your receipt number.
+            </p>
+        </div>
+        
+        <div class="receipt-footer">
+            <p>Auto Sphere - Vehicle Registration & Management System</p>
+            <p>© {% now "Y" %} Auto Sphere. All rights reserved.</p>
+        </div>
+    </div>
+    
+    <div class="receipt-actions">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fas fa-print"></i> Print Receipt
+        </button>
+        <a href="{% url 'user_vehicle_fines' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Back to Fines
+        </a>
+        <a href="{% url 'download_receipt' receipt_number=fine.payment_receipt_number %}" class="btn btn-primary">
+            <i class="fas fa-download"></i> Download Receipt
+        </a>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Search - AutoSphere</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        body {
+            background-color: #121212;
+            background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            padding: 1.5rem 2rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideIn 0.5s ease-out;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .logo:hover {
+            transform: scale(1.02);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: #3d84ff;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: #f5f5f5;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 800px;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .search-card {
+            background-color: rgba(25, 25, 25, 0.8);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-title {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .search-title h2 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.8rem;
+        }
+
+        .search-title p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+
+        .search-form {
+            position: relative;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            padding-left: 3.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #f5f5f5;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: rgba(61, 132, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(61, 132, 255, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #888;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #3d84ff;
+            font-size: 1.3rem;
+        }
+
+        .search-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            background-size: 200% auto;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .search-btn:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(61, 132, 255, 0.3);
+        }
+
+        .search-illustration {
+            text-align: center;
+            margin-top: 3rem;
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .search-illustration i {
+            font-size: 5rem;
+            color: #3d84ff;
+            opacity: 0.7;
+        }
+
+        .recent-searches {
+            margin-top: 3rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .recent-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #a0a0a0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recent-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .recent-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: #f5f5f5;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .recent-item:hover {
+            background-color: rgba(61, 132, 255, 0.1);
+            border-color: rgba(61, 132, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .search-tips {
+            margin-top: 3rem;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .tips-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #a0a0a0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tips-list {
+            list-style-type: none;
+        }
+
+        .tips-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .tips-item i {
+            color: #3d84ff;
+            margin-top: 0.2rem;
+        }
+
+        .circle {
+            position: fixed;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(100px);
+            transition: all 0.5s ease;
+        }
+        
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(61, 132, 255, 0.1);
+            top: -100px;
+            right: -100px;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .circle-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(99, 209, 255, 0.1);
+            bottom: -150px;
+            left: -150px;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        .my-vehicles-section {
+            margin-top: 3rem;
+            width: 100%;
+            max-width: 800px;
+            animation: fadeIn 1.4s ease-out;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title i {
+            color: #3d84ff;
+        }
+
+        .view-all {
+            color: #3d84ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .view-all:hover {
+            text-decoration: underline;
+        }
+
+        .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .vehicle-item {
+            background-color: rgba(25, 25, 25, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .vehicle-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(61, 132, 255, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .vehicle-header {
+            background: linear-gradient(90deg, rgba(61, 132, 255, 0.1), rgba(99, 209, 255, 0.1));
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .vehicle-icon {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(61, 132, 255, 0.1);
+            border-radius: 50%;
+            color: #3d84ff;
+            font-size: 1rem;
+        }
+
+        .vehicle-title {
+            flex: 1;
+        }
+
+        .vehicle-title h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #f5f5f5;
+            margin-bottom: 0.2rem;
+        }
+
+        .vehicle-title p {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .vehicle-content {
+            padding: 1rem;
+        }
+
+        .vehicle-detail {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 0;
+        }
+
+        .vehicle-detail:last-child {
+            border-bottom: none;
+        }
+
+        .detail-name {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .detail-value {
+            font-size: 0.8rem;
+            color: #f5f5f5;
+        }
+
+        .primary-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #3d84ff;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #3d84ff;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: none;
+            border: 1px solid rgba(61, 132, 255, 0.5);
+            color: #3d84ff;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(61, 132, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .logo {
+                justify-content: center;
+            }
+            
+            .nav-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            main {
+                padding: 1.5rem;
+            }
+            
+            .search-card {
+                padding: 1.5rem;
+            }
+            
+            .search-title h2 {
+                font-size: 1.8rem;
+            }
+            
+            .form-control {
+                padding: 1rem 1.2rem 1rem 3rem;
+            }
+            
+            .vehicle-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+
+    <header>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fas fa-car"></i>
+            <h1>AutoSphere</h1>
+        </a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}" class="nav-link">
+                <i class="fas fa-home"></i>
+                Dashboard
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'personalized_vehicles' %}" class="nav-link">
+                <i class="fas fa-car-side"></i>
+                My Vehicles
+            </a>
+            {% endif %}
+            <a href="{% url 'search_vehicle' %}" class="nav-link">
+                <i class="fas fa-search"></i>
+                Search
+            </a>
+            <a href="{% url 'notice_list' %}" class="nav-link">
+                <i class="fas fa-bullhorn"></i>
+                Notices
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="nav-link">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="nav-link">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        <div class="search-container">
+            <div class="search-card">
+                <div class="search-title">
+                    <h2>Vehicle Search</h2>
+                    <p>Enter a vehicle registration number to get detailed information</p>
+                </div>
+                <form action="{% url 'search_vehicle' %}" method="get" class="search-form">
+                    <div class="form-group">
+                        <i class="fas fa-car input-icon"></i>
+                        <input type="text" name="query" class="form-control" placeholder="Enter registration number (e.g., KL-01-AB-1234)" value="{{ query }}" required>
+                    </div>
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                        Search Vehicle
+                    </button>
+                </form>
+                <div class="search-illustration">
+                    <i class="fas fa-car-side"></i>
+                </div>
+            </div>
+
+            <div class="search-tips">
+                <h3 class="tips-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Search Tips
+                </h3>
+                <ul class="tips-list">
+                    <li class="tips-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Enter the complete registration number including hyphens (e.g., KL-01-AB-1234)</span>
+                    </li>
+                    <li class="tips-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>You can also search without hyphens (e.g., KL01AB1234)</span>
+                    </li>
+                    <li class="tips-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Case doesn't matter - you can use uppercase or lowercase</span>
+                    </li>
+                    <li class="tips-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>After finding a vehicle, you can add it to your personal list by verifying ownership</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="my-vehicles-section">
+            <div class="section-title">
+                <h3>
+                    <i class="fas fa-star"></i>
+                    My Personalized Vehicles
+                </h3>
+                <a href="{% url 'personalized_vehicles' %}" class="view-all">
+                    View All
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            {% with user_vehicles=request.user.personalizedvehicle_set.all|slice:":3" %}
+            {% if user_vehicles %}
+            <div class="vehicle-grid">
+                {% for pv in user_vehicles %}
+                <div class="vehicle-item">
+                    {% if pv.is_primary %}
+                    <span class="primary-badge">Primary</span>
+                    {% endif %}
+                    <div class="vehicle-header">
+                        <div class="vehicle-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="vehicle-title">
+                            <h4>{{ pv.nickname|default:pv.vehicle.registration_number }}</h4>
+                            <p>{{ pv.vehicle.manufacturer }} {{ pv.vehicle.model }}</p>
+                        </div>
+                    </div>
+                    <div class="vehicle-content">
+                        <div class="vehicle-detail">
+                            <span class="detail-name">Registration</span>
+                            <span class="detail-value">{{ pv.vehicle.registration_number }}</span>
+                        </div>
+                        <div class="vehicle-detail">
+                            <span class="detail-name">Color</span>
+                            <span class="detail-value">{{ pv.vehicle.color }}</span>
+                        </div>
+                        <div class="vehicle-detail">
+                            <span class="detail-name">Fuel Type</span>
+                            <span class="detail-value">{{ pv.vehicle.fuel_type }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-car-side"></i>
+                <p>You haven't personalized any vehicles yet</p>
+                <a href="{% url 'search_vehicle' %}" class="btn-outline">
+                    <i class="fas fa-search"></i>
+                    Search for vehicles
+                </a>
+            </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+        {% endif %}
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on search input when page loads
+            const searchInput = document.querySelector('input[name="query"]');
+            if (searchInput) {
+                searchInput.focus();
+            }
+
+            // Add animation delays to vehicle items
+            const vehicleItems = document.querySelectorAll('.vehicle-item');
+            vehicleItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 100}ms`;
+            });
+        });
+    </script>
+</body>
+</html> 

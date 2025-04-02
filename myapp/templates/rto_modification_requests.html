@@ -1,0 +1,107 @@
+{% extends 'rto_base.html' %}
+
+{% block title %}Vehicle Modification Requests{% endblock %}
+
+{% block dashboard_title %}Modification Requests{% endblock %}
+{% block dashboard_subtitle %}Manage vehicle modification requests for your jurisdiction{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Filter Requests</h3>
+        <p class="text-sm mb-0">Filter modification requests by type and status</p>
+    </div>
+    <div class="card-body p-3">
+        <form method="get" class="row">
+            <div class="col-md-5 mb-2">
+                <label class="form-label">Request Type</label>
+                <select name="type" class="form-control">
+                    <option value="">All Types</option>
+                    {% for type_value, type_display in request_types %}
+                    <option value="{{ type_value }}" {% if type_filter == type_value %}selected{% endif %}>{{ type_display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-5 mb-2">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Status</option>
+                    {% for status_value, status_display in status_choices %}
+                    <option value="{{ status_value }}" {% if status_filter == status_value %}selected{% endif %}>{{ status_display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end mb-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Jurisdiction Information -->
+<div class="section-header">
+    <h3>Vehicle Requests - {{ rto_jurisdiction }}</h3>
+</div>
+
+<!-- Requests Table -->
+<div class="table-responsive">
+    {% if requests %}
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>Vehicle</th>
+                <th>User</th>
+                <th>Request Type</th>
+                <th>Requested Change</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>
+                    <div class="d-flex flex-column">
+                        <a href="{% url 'edit_vehicle' request.vehicle.id %}" class="action-link">{{ request.vehicle.registration_number }}</a>
+                        <span class="text-muted small">{{ request.vehicle.manufacturer }} {{ request.vehicle.model }}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex flex-column">
+                        <span>{{ request.user.username }}</span>
+                        <span class="text-muted small">{{ request.user.email }}</span>
+                    </div>
+                </td>
+                <td>{{ request.get_request_type_display }}</td>
+                <td>
+                    <div class="d-flex flex-column">
+                        <span>From: {{ request.current_value }}</span>
+                        <span>To: {{ request.requested_value }}</span>
+                    </div>
+                </td>
+                <td>
+                    {% if request.status == 'pending' %}
+                    <span class="badge badge-yellow">Pending</span>
+                    {% elif request.status == 'approved' %}
+                    <span class="badge badge-green">Approved</span>
+                    {% elif request.status == 'rejected' %}
+                    <span class="badge badge-red">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>{{ request.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <a href="{% url 'rto_modification_request_detail' request.id %}" class="btn btn-info btn-sm">Review</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-4">
+        <p>No modification requests found matching your criteria.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Failed - Auto Sphere{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #1a1a2e, #16213e, #1a1a2e);
+        color: #e3e3e3;
+    }
+    
+    .card {
+        background-color: rgba(30, 30, 47, 0.8);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+    
+    .card-header {
+        background-color: rgba(36, 36, 56, 0.8);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px 15px 0 0 !important;
+    }
+    
+    .failure-icon {
+        font-size: 5rem;
+        color: #dc3545;
+        margin-bottom: 20px;
+        animation: shake 1s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    
+    @keyframes shake {
+        10%, 90% {
+            transform: translate3d(-1px, 0, 0);
+        }
+        
+        20%, 80% {
+            transform: translate3d(2px, 0, 0);
+        }
+        
+        30%, 50%, 70% {
+            transform: translate3d(-4px, 0, 0);
+        }
+        
+        40%, 60% {
+            transform: translate3d(4px, 0, 0);
+        }
+    }
+    
+    .failure-message {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .payment-details {
+        padding: 20px;
+        background-color: rgba(40, 40, 61, 0.5);
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .payment-detail-item {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .payment-detail-item:last-child {
+        border-bottom: none;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #4c79fe, #2663eb);
+        border: none;
+        box-shadow: 0 4px 15px rgba(38, 99, 235, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #2663eb, #4c79fe);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(38, 99, 235, 0.6);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        border: none;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-danger:hover {
+        background: linear-gradient(45deg, #c82333, #dc3545);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(220, 53, 69, 0.6);
+    }
+    
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #f8d7da;
+    }
+    
+    .error-reasons {
+        text-align: left;
+        padding: 15px;
+        background-color: rgba(220, 53, 69, 0.1);
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .error-reasons ul {
+        padding-left: 20px;
+    }
+    
+    .error-reasons li {
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Payment Failed</h3>
+                </div>
+                <div class="card-body text-center">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'info' %}alert-info{% else %}alert-warning{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <i class="fas fa-times-circle failure-icon"></i>
+                    <h2 class="failure-message">Payment Failed</h2>
+                    <p class="lead mb-4">We couldn't process your payment. Please try again.</p>
+                    
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        {% if payment.failure_reason %}
+                            {{ payment.failure_reason }}
+                        {% else %}
+                            There was an issue with your payment. This could be due to insufficient funds, network issues, or a problem with your payment method.
+                        {% endif %}
+                    </div>
+                    
+                    <div class="error-reasons">
+                        <h4>Common Reasons for Payment Failure:</h4>
+                        <ul>
+                            <li>Insufficient funds in your account</li>
+                            <li>Incorrect card information</li>
+                            <li>Bank declined the transaction</li>
+                            <li>Network connectivity issues</li>
+                            <li>Payment gateway timeout</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="payment-details">
+                        <div class="row payment-detail-item">
+                            <div class="col-md-6 text-md-right">
+                                <strong>Amount:</strong>
+                            </div>
+                            <div class="col-md-6 text-md-left">
+                                ₹{{ payment.amount }}
+                            </div>
+                        </div>
+                        <div class="row payment-detail-item">
+                            <div class="col-md-6 text-md-right">
+                                <strong>Attempted At:</strong>
+                            </div>
+                            <div class="col-md-6 text-md-left">
+                                {{ payment.created_at|date:"F d, Y, g:i A" }}
+                            </div>
+                        </div>
+                        <div class="row payment-detail-item">
+                            <div class="col-md-6 text-md-right">
+                                <strong>Fine ID:</strong>
+                            </div>
+                            <div class="col-md-6 text-md-left">
+                                {{ fine.id }}
+                            </div>
+                        </div>
+                        <div class="row payment-detail-item">
+                            <div class="col-md-6 text-md-right">
+                                <strong>Vehicle:</strong>
+                            </div>
+                            <div class="col-md-6 text-md-left">
+                                {{ fine.vehicle.registration_number }}
+                            </div>
+                        </div>
+                        <div class="row payment-detail-item">
+                            <div class="col-md-6 text-md-right">
+                                <strong>Violation Type:</strong>
+                            </div>
+                            <div class="col-md-6 text-md-left">
+                                {{ fine.violation_type }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ retry_url }}" class="btn btn-danger m-2">
+                            <i class="fas fa-redo"></i> Try Again
+                        </a>
+                        <a href="{% url 'user_vehicle_fines' %}" class="btn btn-primary m-2">
+                            <i class="fas fa-list"></i> Back to Fine List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

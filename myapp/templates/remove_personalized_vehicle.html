@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Vehicle - AutoSphere</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        @keyframes gradientBG {
+            
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body {
+            background-color: #121212;
+            background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            padding: 1.5rem 2rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideIn 0.5s ease-out;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .logo:hover {
+            transform: scale(1.02);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: #3d84ff;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: #f5f5f5;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            text-decoration: none;
+            color: #f5f5f5;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .back-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #f5f5f5;
+            margin-bottom: 2rem;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        .remove-card {
+            background-color: rgba(25, 25, 25, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideIn 0.7s ease-out;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+        
+        .remove-header {
+            background: linear-gradient(90deg, rgba(255, 59, 48, 0.1), rgba(255, 100, 92, 0.1));
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .remove-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .remove-title i {
+            color: #ff3b30;
+        }
+        
+        .remove-content {
+            padding: 1.5rem;
+        }
+        
+        .vehicle-info {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        
+        .vehicle-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(61, 132, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #3d84ff;
+            flex-shrink: 0;
+        }
+        
+        .vehicle-details {
+            flex: 1;
+        }
+        
+        .vehicle-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        
+        .vehicle-meta {
+            color: #888;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .vehicle-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .warning-message {
+            background-color: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.2);
+            border-radius: 8px;
+            padding: 1.2rem;
+            color: #ff3b30;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .warning-message i {
+            font-size: 1.5rem;
+        }
+        
+        .form-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            background-color: rgba(20, 20, 20, 0.4);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-outline {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f5f5f5;
+        }
+        
+        .btn-outline:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(90deg, #ff3b30, #ff6449);
+            background-size: 200% auto;
+            border: none;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-position: right center;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(255, 59, 48, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .logo {
+                justify-content: center;
+            }
+            
+            .nav-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            main {
+                padding: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .vehicle-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .vehicle-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: center;
+            }
+            
+            .form-footer {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fas fa-car"></i>
+            <h1>AutoSphere</h1>
+        </a>
+        <nav class="nav-links">
+            <a href="{% url 'home' %}" class="nav-link">
+                <i class="fas fa-home"></i>
+                Dashboard
+            </a>
+            <a href="{% url 'personalized_vehicles' %}" class="nav-link">
+                <i class="fas fa-car-side"></i>
+                My Vehicles
+            </a>
+            <a href="{% url 'search_vehicle' %}" class="nav-link">
+                <i class="fas fa-search"></i>
+                Search
+            </a>
+            <a href="{% url 'notice_list' %}" class="nav-link">
+                <i class="fas fa-bullhorn"></i>
+                Notices
+            </a>
+            <a href="{% url 'logout' %}" class="nav-link">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <a href="{% url 'personalized_vehicles' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to My Vehicles
+        </a>
+
+        <h1 class="page-title">Remove Vehicle</h1>
+        
+        <div class="remove-card">
+            <div class="remove-header">
+                <h2 class="remove-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Confirm Removal
+                </h2>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="remove-content">
+                    <div class="vehicle-info">
+                        <div class="vehicle-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="vehicle-details">
+                            <div class="vehicle-name">{{ vehicle.nickname|default:vehicle.vehicle.registration_number }}</div>
+                            <div class="vehicle-meta">
+                                <div class="vehicle-meta-item">
+                                    <i class="fas fa-id-card"></i>
+                                    {{ vehicle.vehicle.registration_number }}
+                                </div>
+                                <div class="vehicle-meta-item">
+                                    <i class="fas fa-car-side"></i>
+                                    {{ vehicle.vehicle.manufacturer }} {{ vehicle.vehicle.model }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="warning-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div>
+                            <p>Are you sure you want to remove this vehicle from your personalized list?</p>
+                            <p>This action cannot be undone. You will need to verify ownership again if you want to add this vehicle back to your list.</p>
+                            {% if vehicle.is_primary %}
+                            <p><strong>Note:</strong> This is your primary vehicle. Removing it will un-set your primary vehicle.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-footer">
+                    <a href="{% url 'personalized_vehicles' %}" class="btn btn-outline">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i>
+                        Confirm Removal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html> 

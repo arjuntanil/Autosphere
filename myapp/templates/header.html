@@ -1,0 +1,341 @@
+{% load static %}
+
+<header class="main-header">
+    <div class="header-container">
+        <div class="logo-container">
+            <a href="{% url 'home' %}" class="logo">
+                <i class="fas fa-car-side"></i>
+                <span>AutoSphere</span>
+            </a>
+        </div>
+        
+        <div class="search-container">
+            <form action="{% url 'search_vehicle' %}" method="GET" class="search-form">
+                <input type="text" name="q" placeholder="Search by registration number..." required>
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="header-actions">
+            {% if user.is_authenticated %}
+                <div class="notification-dropdown">
+                    <a href="{% url 'notifications' %}" class="notification-btn" id="notificationBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count" id="notificationCount">0</span>
+                    </a>
+                </div>
+                
+                <div class="user-dropdown">
+                    <button class="dropdown-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ user.username }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        {% if user.is_rto %}
+                            <a href="{% url 'rto_home' %}">
+                                <i class="fas fa-tachometer-alt"></i> RTO Dashboard
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'personalized_vehicles' %}">
+                            <i class="fas fa-car"></i> My Vehicles
+                        </a>
+                        <a href="{% url 'user_vehicle_fines' %}">
+                            <i class="fas fa-receipt"></i> My Fines
+                        </a>
+                        <a href="{% url 'notifications' %}">
+                            <i class="fas fa-bell"></i> Notifications
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="auth-buttons">
+                    <a href="{% url 'login' %}" class="login-btn">Login</a>
+                    <a href="{% url 'register' %}" class="register-btn">Register</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<style>
+    .main-header {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .logo-container {
+        display: flex;
+        align-items: center;
+    }
+    
+    .logo {
+        display: flex;
+        align-items: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #3498db;
+        text-decoration: none;
+    }
+    
+    .logo i {
+        margin-right: 10px;
+    }
+    
+    .search-container {
+        flex: 1;
+        max-width: 500px;
+        margin: 0 20px;
+    }
+    
+    .search-form {
+        display: flex;
+        position: relative;
+    }
+    
+    .search-form input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+    
+    .search-form input:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+    
+    .search-btn {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #3498db;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 5px 10px;
+    }
+    
+    .header-actions {
+        display: flex;
+        align-items: center;
+    }
+    
+    .notification-dropdown {
+        position: relative;
+        margin-right: 15px;
+    }
+    
+    .notification-btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f0f7ff;
+        color: #3498db;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .notification-btn:hover {
+        background-color: #e1f0fe;
+    }
+    
+    .notification-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .user-dropdown {
+        position: relative;
+    }
+    
+    .dropdown-btn {
+        display: flex;
+        align-items: center;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+    
+    .dropdown-btn:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .dropdown-btn i {
+        margin-right: 8px;
+        color: #3498db;
+    }
+    
+    .dropdown-btn .fa-chevron-down {
+        font-size: 0.8rem;
+        margin-left: 8px;
+        margin-right: 0;
+        color: #95a5a6;
+    }
+    
+    .dropdown-content {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background-color: white;
+        min-width: 200px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        display: none;
+        z-index: 1;
+    }
+    
+    .user-dropdown:hover .dropdown-content {
+        display: block;
+    }
+    
+    .dropdown-content a {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        text-decoration: none;
+        color: #34495e;
+        transition: background-color 0.3s;
+    }
+    
+    .dropdown-content a:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .dropdown-content a i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+        color: #3498db;
+    }
+    
+    .dropdown-divider {
+        height: 1px;
+        background-color: #eee;
+        margin: 5px 0;
+    }
+    
+    .auth-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .login-btn, .register-btn {
+        padding: 8px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .login-btn {
+        background-color: #f8f9fa;
+        color: #3498db;
+    }
+    
+    .login-btn:hover {
+        background-color: #eaeaea;
+    }
+    
+    .register-btn {
+        background-color: #3498db;
+        color: white;
+    }
+    
+    .register-btn:hover {
+        background-color: #2980b9;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .header-container {
+            flex-wrap: wrap;
+        }
+        
+        .logo-container {
+            margin-bottom: 10px;
+        }
+        
+        .search-container {
+            order: 3;
+            margin: 10px 0 0;
+            max-width: 100%;
+            width: 100%;
+        }
+        
+        .header-actions {
+            margin-left: auto;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to update notification count
+        function updateNotificationCount() {
+            fetch('{% url "get_notification_count" %}')
+                .then(response => response.json())
+                .then(data => {
+                    const countElement = document.getElementById('notificationCount');
+                    if (countElement) {
+                        countElement.textContent = data.count;
+                        
+                        // Hide count if zero
+                        if (data.count === 0) {
+                            countElement.style.display = 'none';
+                        } else {
+                            countElement.style.display = 'flex';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching notification count:', error));
+        }
+        
+        // Update count on page load
+        updateNotificationCount();
+        
+        // Update count every 30 seconds
+        setInterval(updateNotificationCount, 30000);
+    });
+</script>
