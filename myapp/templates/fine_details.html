@@ -4,142 +4,677 @@
 {% block title %}Fine Details - Auto Sphere{% endblock %}
 
 {% block extra_css %}
-<style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         body {
-        background: linear-gradient(135deg, #1a1a2e, #16213e, #1a1a2e);
-        color: #e3e3e3;
+            background-color: #121212;
+            background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        header {
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        header:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: #3d84ff;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: #000000;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.02em;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(61, 132, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: #000000;
+        }
+
+        .nav-link i {
+            font-size: 0.9rem;
+            color: #3d84ff;
         }
 
         .card {
-        background-color: rgba(30, 30, 47, 0.8);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background-color: rgba(30, 30, 47, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
-        transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: slideIn 0.7s ease-out;
         }
 
         .card:hover {
             transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
         }
 
         .card-header {
-        background-color: rgba(36, 36, 56, 0.8);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px 15px 0 0 !important;
-    }
+            background-color: rgba(36, 36, 56, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        
+        .card-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
     
-    .fine-detail-section {
-        background-color: rgba(40, 40, 61, 0.5);
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
+        .fine-detail-section {
+            background-color: rgba(40, 40, 61, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .fine-detail-section:hover {
+            border-color: rgba(61, 132, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .fine-detail-section h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f5f5f5;
+        }
+        
+        .fine-detail-section h4 i {
+            color: #3d84ff;
+        }
     
-    .fine-amount {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #fff;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        .fine-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .badge-unpaid {
-        background-color: #dc3545;
-        color: white;
-        font-size: 0.9rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 8px;
+            background-color: #dc3545;
+            color: white;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
         }
 
         .badge-paid {
-        background-color: #28a745;
-        color: white;
-        font-size: 0.9rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 8px;
-    }
+            background-color: #28a745;
+            color: white;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+        }
     
-    .badge-processing {
-        background-color: #ffc107;
-        color: #212529;
-        font-size: 0.9rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 8px;
-    }
+        .badge-processing {
+            background-color: #ffc107;
+            color: #212529;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+        }
     
-    .btn-pay {
-        background: linear-gradient(45deg, #4c79fe, #2663eb);
-        color: white;
-        font-weight: bold;
-        padding: 12px 25px;
+        .btn-pay {
+            background: linear-gradient(45deg, #4c79fe, #2663eb);
+            color: white;
+            font-weight: bold;
+            padding: 12px 25px;
             border: none;
-        border-radius: 8px;
+            border-radius: 8px;
             cursor: pointer;
-        font-size: 16px;
-        box-shadow: 0 4px 15px rgba(38, 99, 235, 0.4);
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(38, 99, 235, 0.4);
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-        justify-content: center;
-    }
+            justify-content: center;
+        }
     
-    .btn-pay:hover {
-        background: linear-gradient(45deg, #2663eb, #4c79fe);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(38, 99, 235, 0.6);
+        .btn-pay:hover {
+            background: linear-gradient(45deg, #2663eb, #4c79fe);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(38, 99, 235, 0.6);
             color: white;
-        text-decoration: none;
-    }
+            text-decoration: none;
+        }
     
-    .btn-pay i {
-        margin-right: 8px;
+        .btn-pay i {
+            margin-right: 8px;
         }
 
         .btn-secondary {
-        background: linear-gradient(45deg, #6c757d, #495057);
-        border: none;
-        box-shadow: 0 4px 15px rgba(73, 80, 87, 0.4);
-        transition: all 0.3s ease;
+            background: linear-gradient(45deg, #6c757d, #495057);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(73, 80, 87, 0.4);
+            transition: all 0.3s ease;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .btn-secondary:hover {
-        background: linear-gradient(45deg, #495057, #6c757d);
+            background: linear-gradient(45deg, #495057, #6c757d);
             transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(73, 80, 87, 0.6);
+            box-shadow: 0 8px 20px rgba(73, 80, 87, 0.6);
+            color: white;
+            text-decoration: none;
         }
 
-    .btn-receipt {
-        background: linear-gradient(45deg, #28a745, #20c997);
+        .btn-receipt {
+            background: linear-gradient(45deg, #28a745, #20c997);
             color: white;
-        font-weight: bold;
-        padding: 12px 25px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        box-shadow: 0 4px 15px rgba(32, 201, 151, 0.4);
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
+            font-weight: bold;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(32, 201, 151, 0.4);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
     
-    .btn-receipt:hover {
-        background: linear-gradient(45deg, #20c997, #28a745);
+        .btn-receipt:hover {
+            background: linear-gradient(45deg, #20c997, #28a745);
             transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(32, 201, 151, 0.6);
-        color: white;
-        text-decoration: none;
-    }
+            box-shadow: 0 8px 20px rgba(32, 201, 151, 0.6);
+            color: white;
+            text-decoration: none;
+        }
     
-    .btn-receipt i {
-        margin-right: 8px;
+        .btn-receipt i {
+            margin-right: 8px;
+        }
+    
+        /* Document display styles */
+        .document-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(40, 40, 61, 0.5);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .document-section:hover {
+            border-color: rgba(61, 132, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    
+        .document-preview {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+    
+        .document-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .document-actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .document-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    
+        .document-btn i {
+            margin-right: 8px;
+        }
+    
+        .view-btn {
+            background-color: rgba(61, 132, 255, 0.2);
+            color: #3d84ff;
+            border: 1px solid rgba(61, 132, 255, 0.3);
+        }
+    
+        .view-btn:hover {
+            background-color: rgba(61, 132, 255, 0.3);
+            color: #fff;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 132, 255, 0.2);
+        }
+    
+        .download-btn {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+    
+        .download-btn:hover {
+            background-color: rgba(40, 167, 69, 0.3);
+            color: #fff;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+        }
+    
+        /* PDF download button */
+        .download-pdf-btn {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            font-weight: 500;
+        }
+    
+        .download-pdf-btn:hover {
+            background-color: rgba(220, 53, 69, 0.3);
+            color: #fff;
+            text-decoration: none;
+            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Image download button */
+        .download-image-btn {
+            background-color: rgba(13, 110, 253, 0.2);
+            color: #0d6efd;
+            border: 1px solid rgba(13, 110, 253, 0.3);
+            font-weight: 500;
+        }
+    
+        .download-image-btn:hover {
+            background-color: rgba(13, 110, 253, 0.3);
+            color: #fff;
+            text-decoration: none;
+            box-shadow: 0 3px 10px rgba(13, 110, 253, 0.3);
+            transform: translateY(-2px);
+        }
+    
+        .no-document {
+            text-align: center;
+            color: #6c757d;
+            padding: 20px;
+        }
+    
+        .document-type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    
+        .document-type-pdf {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+    
+        .document-type-image {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+            border: 1px solid rgba(13, 110, 253, 0.2);
+        }
+    
+        .pdf-placeholder {
+            padding: 40px 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    
+        .pdf-placeholder i {
+            font-size: 48px;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        
+        .bg-blur {
+            position: absolute;
+            filter: blur(120px);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        
+        .blur-1 {
+            background: radial-gradient(circle, rgba(61, 132, 255, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+        }
+        
+        .blur-2 {
+            background: radial-gradient(circle, rgba(99, 209, 255, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
+            width: 500px;
+            height: 500px;
+            bottom: -100px;
+            right: -100px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+                flex-direction: column;
+            gap: 1rem;
+        }
+
+            .card-header {
+                padding: 1rem;
+            }
+            
+            .document-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .document-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .documents-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .document-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        
+        .document-item.loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .document-item.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #3498db;
+            border-radius: 50%;
+            z-index: 6;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .document-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .document-preview {
+            position: relative;
+            padding-top: 75%; /* 4:3 aspect ratio */
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .document-thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+                width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .document-link:hover .document-thumbnail {
+            transform: scale(1.05);
+        }
+        
+        .pdf-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+                flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(220, 53, 69, 0.1);
+        }
+        
+        .pdf-placeholder i {
+            font-size: 3rem;
+            color: #ff6b6b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .document-info {
+                padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .document-type {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .document-type-pdf {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #ff6b6b;
+        }
+        
+        .document-type-image {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #51cf66;
+        }
+        
+        .document-type-other {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: #3bc9db;
+        }
+        
+        .document-download {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: color 0.2s;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .document-download:hover {
+            color: var(--secondary-color);
+        }
+        
+        .document-download.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .document-download .loading-spinner {
+            display: none;
+            margin-right: 5px;
+        }
+        
+        .document-download.loading .loading-spinner {
+            display: inline-block;
+        }
+        
+        .document-download.loading .download-icon {
+            display: none;
         }
     </style>
 {% endblock %}
 
 {% block content %}
+<!-- Background blur effects -->
+    <div class="bg-blur blur-1"></div>
+    <div class="bg-blur blur-2"></div>
+
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -149,20 +684,20 @@
                         {{ message }}
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+                    </button>
+                </div>
                 {% endfor %}
             {% endif %}
             
             <div class="card mb-4">
                 <div class="card-header">
                     <h3 class="mb-0">Fine Details</h3>
-                </div>
+            </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <span class="text-muted">Fine ID: {{ fine.id }}</span>
-        </div>
+            </div>
                         <div>
                             {% if fine.payment_status == 'Unpaid' %}
                                 <span class="badge badge-unpaid">
@@ -185,10 +720,10 @@
                             <div class="col-md-6">
                                 <h4>Amount</h4>
                                 <div class="fine-amount">₹{{ fine.fine_amount }}</div>
-                            </div>
+            </div>
                             <div class="col-md-6 text-md-right">
                                 <h4>Date Issued</h4>
-                                <p class="mb-0">{{ fine.date_issued|date:"F d, Y" }}</p>
+                                <p class="mb-0">{{ fine.imposed_date|date:"F d, Y" }}</p>
                             </div>
             </div>
         </div>
@@ -199,7 +734,7 @@
                             <div class="col-md-6">
                                 <p><strong>Registration Number:</strong><br> {{ fine.vehicle.registration_number }}</p>
                                 <p><strong>Vehicle Type:</strong><br> {{ fine.vehicle.vehicle_type }}</p>
-                            </div>
+            </div>
                             <div class="col-md-6">
                                 <p><strong>Make:</strong><br> {{ fine.vehicle.make }}</p>
                                 <p><strong>Model:</strong><br> {{ fine.vehicle.model }}</p>
@@ -213,6 +748,75 @@
                         <p><strong>Location:</strong><br> {{ fine.location }}</p>
                         <p><strong>Description:</strong><br> {{ fine.description }}</p>
             </div>
+
+            {% if fine.violation_document or fine.has_documents %}
+                    <div class="fine-detail-section document-section">
+                        <h4>
+                            <i class="fas fa-file-alt"></i> 
+                            Violation Documents
+                        </h4>
+                        
+                        <div class="documents-gallery">
+            {% if fine.violation_document %}
+                                <!-- Legacy document display -->
+                                <div class="document-item">
+                                    <div class="document-preview">
+                                        {% if fine.get_document_type == 'image' %}
+                                            <a href="{% url 'view_violation_document' fine_id=fine.id %}" target="_blank" class="document-link">
+                                                <img src="{% url 'view_violation_document' fine_id=fine.id %}" alt="Violation Image" class="document-thumbnail">
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'view_violation_document' fine_id=fine.id %}" target="_blank" class="document-link">
+                                                <div class="pdf-placeholder">
+                                                    <i class="fas fa-file-pdf"></i>
+                </div>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="document-info">
+                                        <span class="document-type document-type-{{ fine.get_document_type }}">
+                                            {{ fine.get_document_type|upper }}
+                                        </span>
+                                        <a href="{% url 'view_violation_document' fine_id=fine.id %}?download=1" class="document-download" onclick="startDownload(this, event)">
+                                            <span class="loading-spinner"><i class="fas fa-circle-notch fa-spin"></i></span>
+                                            <span class="download-icon"><i class="fas fa-download"></i> Download</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+                            
+                            {% if fine.has_documents %}
+                                <!-- Display all documents from ViolationDocument model -->
+                                {% for doc in fine.all_documents %}
+                                    <div class="document-item">
+                                        <div class="document-preview">
+                                            {% if doc.get_document_type == 'image' %}
+                                                <a href="{% url 'view_document' document_id=doc.id %}" target="_blank" class="document-link">
+                                                    <img src="{% url 'view_document' document_id=doc.id %}" alt="Violation Image" class="document-thumbnail">
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'view_document' document_id=doc.id %}" target="_blank" class="document-link">
+                                                    <div class="pdf-placeholder">
+                                                        <i class="fas fa-file-pdf"></i>
+            </div>
+                                                </a>
+                                            {% endif %}
+        </div>
+                                        <div class="document-info">
+                                            <span class="document-type document-type-{{ doc.get_document_type }}">
+                                                {{ doc.get_document_type|upper }}
+                                            </span>
+                                            <a href="{% url 'view_document' document_id=doc.id %}?download=1" class="document-download" onclick="startDownload(this, event)">
+                                                <span class="loading-spinner"><i class="fas fa-circle-notch fa-spin"></i></span>
+                                                <span class="download-icon"><i class="fas fa-download"></i> Download</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
                     
                     {% if fine.payment_status == 'Unpaid' %}
                         <div class="text-center my-4">
@@ -224,24 +828,104 @@
                         <div class="text-center my-4">
                             <a href="{% url 'pay_fine' fine_id=fine.id %}" class="btn-pay">
                                 <i class="fas fa-spinner fa-spin"></i> Continue Payment
-                    </a>
-                </div>
+                </a>
+            </div>
                     {% elif fine.payment_status == 'Paid' %}
                         <div class="text-center my-4">
-                            <a href="{% url 'payment_receipt' receipt_number=fine.payment_receipt_number %}" class="btn-receipt">
-                                <i class="fas fa-file-invoice"></i> View Receipt
+                            <a href="{% url 'download_receipt' receipt_number=fine.payment_receipt_number %}" class="btn-receipt">
+                                <i class="fas fa-download"></i> Download Receipt
                             </a>
-            </div>
+        </div>
             {% endif %}
                     
                     <div class="text-center">
-                        <a href="{% url 'user_vehicle_fines' %}" class="btn btn-secondary">
+                        <a href="{% url 'user_vehicle_fines' %}" class="btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to Fines
                         </a>
-            </div>
+        </div>
         </div>
             </div>
         </div>
     </div>
         </div>
+
+    <script>
+    function startDownload(element, event) {
+        // Prevent the default behavior temporarily
+        event.preventDefault();
+        
+        // Add loading class
+        element.classList.add('loading');
+        
+        // Create a hidden iframe for background download
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        
+        // Set the iframe source to the download URL
+        iframe.src = element.href;
+        
+        // Allow time for the download to start, then remove loading indicator
+        setTimeout(function() {
+            element.classList.remove('loading');
+            
+            // Remove the iframe after a delay
+            setTimeout(function() {
+                document.body.removeChild(iframe);
+            }, 5000);
+        }, 800); // Reduced waiting time from 1000ms to 800ms
+    }
+    
+    // Initialize download buttons
+        document.addEventListener('DOMContentLoaded', function() {
+        // Optimize the receipt download button if it exists
+        const receiptButton = document.querySelector('.btn-receipt');
+        if (receiptButton) {
+            receiptButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Preparing Receipt...';
+                this.style.pointerEvents = 'none';
+                
+                // Create hidden iframe for download
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                iframe.src = this.href;
+                
+                // Reset button after delay - shorter delay
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.pointerEvents = 'auto';
+                    
+                    // Remove iframe
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                    }, 5000);
+                }, 1000); // Reduced from 1500ms to 1000ms
+            });
+        }
+        
+        // Preload document thumbnails
+        document.querySelectorAll('.document-thumbnail').forEach(img => {
+            // Add loading class to the parent document item
+            const documentItem = img.closest('.document-item');
+            if (documentItem) {
+                documentItem.classList.add('loading');
+                
+                // When image is loaded, remove loading class
+                img.onload = function() {
+                    documentItem.classList.remove('loading');
+                };
+                
+                // If image fails to load, also remove loading class
+                img.onerror = function() {
+                    documentItem.classList.remove('loading');
+                };
+                }
+            });
+        });
+    </script>
 {% endblock %}

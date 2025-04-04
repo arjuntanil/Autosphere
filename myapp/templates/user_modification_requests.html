@@ -620,13 +620,13 @@
             </a>
         </div>
         
-        {% if messages %}
+        {% comment %} {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}" role="alert">
                     {{ message }}
                 </div>
             {% endfor %}
-        {% endif %}
+        {% endif %} {% endcomment %}
 
         <div class="card">
             <div class="card-header">

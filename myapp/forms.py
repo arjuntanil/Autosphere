@@ -7,6 +7,13 @@ import os
 import re
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
+from django.forms.widgets import PasswordInput
+from django.contrib.auth.password_validation import validate_password
+from django.core.validators import RegexValidator
+from django.utils.text import slugify
+import uuid
+import json
+# import phonenumbers  # Commented out temporarily
 
 User = get_user_model()
 
@@ -65,6 +72,20 @@ class VehicleRegistrationForm(forms.ModelForm):
         initial=False,
         label="Manual Entry",
         help_text="Check this to manually enter the registration number"
+    )
+    
+    registration_validity_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
+    
+    puc_validity_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
     )
 
     class Meta:
@@ -211,6 +232,29 @@ class VehicleFineForm(forms.ModelForm):
             fine.save()
         return fine
 
+class MultiFileInput(forms.ClearableFileInput):
+    """Custom input widget that allows multiple file uploads"""
+    allow_multiple_selected = True
+    
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['attrs']['multiple'] = True
+        return context
+
+class MultiFileField(forms.FileField):
+    """Field that allows for multiple file uploads"""
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultiFileInput())
+        super().__init__(*args, **kwargs)
+        
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
 class FineForm(forms.ModelForm):
     """Form for RTO users to impose fines on vehicles"""
     vehicle_registration_number = forms.CharField(
@@ -222,9 +266,22 @@ class FineForm(forms.ModelForm):
         })
     )
     
+    violation_documents = MultiFileField(
+        required=False,
+        label="Upload Violation Documents",
+        widget=MultiFileInput(attrs={
+            'class': 'form-control',
+            'accept': '.pdf,.jpg,.jpeg,.png',
+            'data-max-size': '5242880',  # 5MB in bytes
+            'multiple': True,
+            'style': 'display: block; width: 100%;'
+        }),
+        help_text='Upload one or more documents related to the violation (PDF, JPG, JPEG, PNG)'
+    )
+    
     class Meta:
         model = VehicleFine
-        fields = ['violation_type', 'description', 'location', 'fine_amount', 'due_date', 'violation_document']
+        fields = ['violation_type', 'description', 'location', 'fine_amount', 'due_date']
         widgets = {
             'violation_type': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={
@@ -243,10 +300,6 @@ class FineForm(forms.ModelForm):
             'due_date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date'
-            }),
-            'violation_document': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': 'application/pdf'
             }),
         }
     
@@ -278,26 +331,78 @@ class FineForm(forms.ModelForm):
         
         return due_date
         
-    def clean_violation_document(self):
-        """Validate that the uploaded file is a PDF document"""
-        document = self.cleaned_data.get('violation_document')
+    def clean_violation_documents(self):
+        """Validate that all uploaded files are valid PDF documents or images"""
+        documents = self.cleaned_data.get('violation_documents')
+        valid_documents = []
         
-        if document:
-            # Check file extension
-            file_ext = os.path.splitext(document.name)[1].lower()
-            if file_ext != '.pdf':
-                raise forms.ValidationError("Only PDF files are allowed.")
+        if not documents:
+            return valid_documents
+        
+        # Convert to list if it's a single file
+        if not isinstance(documents, (list, tuple)):
+            documents = [documents]
+        
+        for document in documents:
+            if document:
+                # Check file extension
+                file_ext = os.path.splitext(document.name)[1].lower()
+                allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
                 
-            # Check file size (limit to 5MB)
-            if document.size > 5 * 1024 * 1024:  # 5MB in bytes
-                raise forms.ValidationError("File size must be under 5MB.")
+                if file_ext not in allowed_extensions:
+                    raise forms.ValidationError(f"Only PDF and image files (JPG, JPEG, PNG) are allowed. Got {file_ext}")
                 
-            # Validate MIME type (optional additional check)
-            if hasattr(document, 'content_type') and document.content_type != 'application/pdf':
-                raise forms.ValidationError("File type must be PDF.")
+                # Check file size (limit to 5MB)
+                if document.size > 5 * 1024 * 1024:  # 5MB in bytes
+                    raise forms.ValidationError(f"File size must be under 5MB. '{document.name}' is {document.size/1024/1024:.2f}MB")
+                    
+                # Validate MIME type (additional check for security)
+                valid_mimetypes = [
+                    'application/pdf',  # PDF
+                    'image/jpeg',       # JPG, JPEG
+                    'image/png'         # PNG
+                ]
                 
-        return document
-    
+                # Check content type from the uploaded file
+                content_type = document.content_type if hasattr(document, 'content_type') else None
+                
+                # Try to use python-magic if available, but fallback gracefully if not
+                try:
+                    import magic
+                    # Reset file pointer to beginning before reading
+                    document.seek(0)
+                    file_mime = magic.from_buffer(document.read(1024), mime=True)
+                    # Reset file pointer after reading
+                    document.seek(0)
+                    
+                    if file_mime not in valid_mimetypes:
+                        raise forms.ValidationError(f"Invalid file type detected for '{document.name}': {file_mime}")
+                except (ImportError, ModuleNotFoundError):
+                    # Fallback to basic extension checking and content_type if magic is not available
+                    if content_type and content_type not in valid_mimetypes:
+                        # If content_type is available and invalid, raise error
+                        raise forms.ValidationError(f"Invalid file type for '{document.name}': {content_type}")
+                    else:
+                        # Just use extension checking as a fallback
+                        # Map extensions to expected content types
+                        ext_to_content_type = {
+                            '.pdf': 'application/pdf',
+                            '.jpg': 'image/jpeg',
+                            '.jpeg': 'image/jpeg',
+                            '.png': 'image/png'
+                        }
+                        # Check that the extension matches expected pattern
+                        # This is a simple check but better than nothing when magic isn't available
+                        expected_content_type = ext_to_content_type.get(file_ext)
+                        if content_type and expected_content_type and content_type != expected_content_type:
+                            raise forms.ValidationError(
+                                f"File extension ({file_ext}) doesn't match content type ({content_type}) for '{document.name}'"
+                            )
+                
+                valid_documents.append(document)
+        
+        return valid_documents
+
     def clean_fine_amount(self):
         amount = self.cleaned_data.get('fine_amount')
         

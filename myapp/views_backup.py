@@ -598,9 +598,10 @@ def remove_personalized_vehicle(request, id):
 # Vehicle Fine related views
 @login_required
 def impose_fine(request):
-    """View for RTO users to impose fines on vehicles"""
-    if not request.user.user_type == 'RTO':
-        messages.error(request, "You do not have permission to impose fines")
+    """View for RTO users to impose a new fine on a vehicle"""
+    # Check if user has RTO permissions
+    if not request.user.is_rto:
+        messages.error(request, "You don't have permission to access this page.")
         return redirect('home')
     
     if request.method == 'POST':
@@ -609,7 +610,7 @@ def impose_fine(request):
             try:
                 # Get or validate vehicle
                 reg_number = form.cleaned_data['vehicle_registration_number']
-            
+                
                 # Normalize the registration number (remove spaces, convert to uppercase)
                 normalized_reg = normalize_registration_number(reg_number)
                 if not normalized_reg:
@@ -632,7 +633,7 @@ def impose_fine(request):
                     
                     # Save the fine object to generate ID
                     fine.save()
-                
+                    
                     # Handle multiple file uploads
                     uploaded_files = request.FILES.getlist('violation_documents')
                     if uploaded_files:
@@ -653,13 +654,7 @@ def impose_fine(request):
                             allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
                             
                             if file_ext not in allowed_extensions:
-                                messages.warning(request, f"Skipped file '{uploaded_file.name}' - invalid format. Only PDF, JPG, JPEG, PNG are allowed.")
-                                continue
-                                
-                            # Check file size (limit to 5MB)
-                            if uploaded_file.size > 5 * 1024 * 1024:  # 5MB in bytes
-                                messages.warning(request, f"Skipped file '{uploaded_file.name}' - exceeds 5MB size limit.")
-                                continue
+                                continue  # Skip invalid files
                                 
                             # Create a new ViolationDocument instance
                             document = ViolationDocument(
@@ -672,8 +667,6 @@ def impose_fine(request):
                         
                         if upload_count > 0:
                             messages.success(request, f"{upload_count} document(s) uploaded successfully")
-                        else:
-                            messages.warning(request, "No valid documents were uploaded. Please try again with supported formats (PDF, JPG, JPEG, PNG) under 5MB each.")
                 
                 # Create notification for users who have personalized this vehicle
                 UserNotification.create_fine_notification(fine)
@@ -691,6 +684,7 @@ def impose_fine(request):
     
     return render(request, 'impose_fine.html', context)
 
+@login_required
 def rto_fine_list(request):
     """View for RTO users to see all fines"""
     if not request.user.user_type == 'RTO':
@@ -965,6 +959,7 @@ def get_notification_count(request):
         return JsonResponse({'count': count})
     return JsonResponse({'count': 0})
 
+# Vehicle Modification Request Views
 @login_required
 def user_modification_requests(request):
     """View to display all modification requests for the current user"""
@@ -1047,17 +1042,17 @@ def rto_modification_requests(request):
     if not rto_reg_number:
         messages.warning(request, "Your RTO registration number is not configured. Please contact admin to set up your jurisdiction.")
     else:
-        # Filter requests based on RTO jurisdiction
-        # Get vehicles with registration numbers starting with the RTO's code
-        requests = VehicleModificationRequest.objects.filter(
-            vehicle__registration_number__startswith=f"KL {rto_reg_number}"
-        ).order_by('-created_at')
-        
-        if status_filter:
-            requests = requests.filter(status=status_filter)
-        
-        if type_filter:
-            requests = requests.filter(request_type=type_filter)
+    # Filter requests based on RTO jurisdiction
+    # Get vehicles with registration numbers starting with the RTO's code
+    requests = VehicleModificationRequest.objects.filter(
+        vehicle__registration_number__startswith=f"KL {rto_reg_number}"
+    ).order_by('-created_at')
+    
+    if status_filter:
+        requests = requests.filter(status=status_filter)
+    
+    if type_filter:
+        requests = requests.filter(request_type=type_filter)
             
         rto_jurisdiction = f"KL {rto_reg_number}"
     
@@ -1518,20 +1513,6 @@ def edit_profile(request):
         user.email = request.POST.get('email')
         user.phone_number = request.POST.get('phone_number')
         user.date_of_birth = request.POST.get('date_of_birth')
-        
-        # Handle profile picture upload
-        if 'profile_picture' in request.FILES:
-            # Delete old profile picture if it exists
-            if user.profile_picture:
-                import os
-                from django.conf import settings
-                old_picture_path = os.path.join(settings.MEDIA_ROOT, user.profile_picture.name)
-                if os.path.isfile(old_picture_path):
-                    os.remove(old_picture_path)
-            
-            # Save new profile picture
-            user.profile_picture = request.FILES['profile_picture']
-        
         user.save()
         messages.success(request, 'Profile updated successfully!')
         return redirect('profile')
@@ -1750,18 +1731,14 @@ def payment_receipt(request, receipt_number):
     try:
         fine = VehicleFine.objects.get(payment_receipt_number=receipt_number)
         
-        # Get the payment record
-        payment = fine.get_latest_payment_attempt()
-        
         # Check if user has permission to view this receipt
-        # Allow RTO users, vehicle owners, and payment creators to view the receipt
-        is_vehicle_owner = PersonalizedVehicle.objects.filter(user=request.user, vehicle=fine.vehicle).exists()
-        is_payment_creator = payment and payment.user == request.user
-        
-        if not request.user.is_rto and not is_vehicle_owner and not is_payment_creator:
+        if not request.user.is_rto and fine.vehicle not in request.user.personalized_vehicles.values_list('vehicle', flat=True):
             messages.error(request, "You don't have permission to view this receipt.")
             return redirect('home')
             
+        # Get the payment record
+        payment = fine.get_latest_payment_attempt()
+        
         # If no payment record exists but the fine is paid, create a dummy payment record for display
         if not payment and fine.payment_status == 'Paid':
             # The FinePayment record might have been lost or not created properly
@@ -1777,7 +1754,7 @@ def payment_receipt(request, receipt_number):
                 razorpay_order_id=fine.razorpay_order_id or 'N/A',
                 razorpay_signature=fine.razorpay_signature or 'N/A'
             )
-        
+            
         context = {
             'fine': fine,
             'payment': payment,
@@ -1875,21 +1852,17 @@ def download_receipt(request, receipt_number):
     try:
         fine = VehicleFine.objects.get(payment_receipt_number=receipt_number)
         
+        # Check if user has permission to download this receipt
+        if not request.user.is_rto and not PersonalizedVehicle.objects.filter(user=request.user, vehicle=fine.vehicle).exists():
+            messages.error(request, "You don't have permission to download this receipt.")
+            return redirect('home')
+            
         # Get the payment record
         payment = fine.get_latest_payment_attempt()
         if not payment:
             messages.error(request, "Payment record not found.")
             return redirect('home')
         
-        # Check if user has permission to download this receipt
-        # Allow the user who owns the vehicle OR the user who made the payment
-        is_vehicle_owner = PersonalizedVehicle.objects.filter(user=request.user, vehicle=fine.vehicle).exists()
-        is_payment_creator = payment.user == request.user
-        
-        if not request.user.is_rto and not is_vehicle_owner and not is_payment_creator:
-            messages.error(request, "You don't have permission to view this receipt.")
-            return redirect('home')
-            
         # Generate the PDF
         pdf = generate_receipt_pdf(fine, payment)
         

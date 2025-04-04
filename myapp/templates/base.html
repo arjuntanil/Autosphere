@@ -40,13 +40,5 @@
     <!-- Loading animation script -->
     <script src="{% static 'js/loading.js' %}"></script>
     {% block extra_js %}{% endblock %}
-
-    <nav class="navbar">
-        <!-- Add notices link to the navigation -->
-        <a href="{% url 'notice_list' %}" class="nav-link {% if request.path == '/notices/' %}active{% endif %}">
-            <i class="fas fa-bullhorn"></i>
-            <span>Notices</span>
-        </a>
-    </nav>
 </body>
 </html>

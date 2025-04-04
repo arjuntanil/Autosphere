@@ -5,18 +5,65 @@
 
 {% block extra_css %}
 <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 100% 50%; }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+        0% { opacity: 0.4; }
+        50% { opacity: 0.6; }
+        100% { opacity: 0.4; }
+    }
+    
     body {
-        background: linear-gradient(135deg, #1a1a2e, #16213e, #1a1a2e);
-        color: #e3e3e3;
+        background-color: #121212;
+        background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+        background-size: 200% 200%;
+        animation: gradientBG 20s ease infinite;
+        color: #f5f5f5;
+        min-height: 100vh;
+        overflow-x: hidden;
+        will-change: background-position;
+    }
+    
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(90deg, #3d84ff, #63d1ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-align: center;
     }
     
     .card {
-        background-color: rgba(30, 30, 47, 0.8);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: rgba(25, 25, 25, 0.8);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(10px);
         transition: transform 0.3s, box-shadow 0.3s;
+        overflow: hidden;
+        will-change: transform;
     }
     
     .card:hover {
@@ -25,273 +72,578 @@
     }
     
     .card-header {
-        background-color: rgba(36, 36, 56, 0.8);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px 15px 0 0 !important;
+        background-color: rgba(30, 30, 47, 0.9);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px 16px 0 0 !important;
+        padding: 1.2rem 1.5rem;
     }
     
-    .fine-item {
-        background-color: rgba(40, 40, 61, 0.5);
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: transform 0.3s, box-shadow 0.3s;
+    .card-header h3 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+        background: linear-gradient(90deg, #f5f5f5, #b8b8b8);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
     }
     
-    .fine-item:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        border-color: rgba(61, 132, 255, 0.3);
+    .card-body {
+        padding: 1.5rem;
     }
     
-    .fine-amount {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #fff;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-    
-    .badge-unpaid {
-        background-color: #dc3545;
-        color: white;
-        font-size: 0.8rem;
-        padding: 0.4rem 0.6rem;
-        border-radius: 6px;
-    }
-    
-    .badge-paid {
-        background-color: #28a745;
-        color: white;
-        font-size: 0.8rem;
-        padding: 0.4rem 0.6rem;
-        border-radius: 6px;
-    }
-    
-    .badge-processing {
-        background-color: #ffc107;
-        color: #212529;
-        font-size: 0.8rem;
-        padding: 0.4rem 0.6rem;
-        border-radius: 6px;
-    }
-    
-    .btn-view {
-        background: linear-gradient(45deg, #4c79fe, #2663eb);
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        box-shadow: 0 4px 15px rgba(38, 99, 235, 0.4);
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-    }
-    
-    .btn-view:hover {
-        background: linear-gradient(45deg, #2663eb, #4c79fe);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(38, 99, 235, 0.6);
-        color: white;
-        text-decoration: none;
-    }
-    
-    .btn-view i {
-        margin-right: 6px;
-    }
-    
-    .btn-pay {
-        background: linear-gradient(45deg, #fd7e14, #e76f51);
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        box-shadow: 0 4px 15px rgba(231, 111, 81, 0.4);
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-    }
-    
-    .btn-pay:hover {
-        background: linear-gradient(45deg, #e76f51, #fd7e14);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(231, 111, 81, 0.6);
-        color: white;
-        text-decoration: none;
-    }
-    
-    .btn-pay i {
-        margin-right: 6px;
-    }
-    
-    .fine-icon {
-        font-size: 2rem;
-        color: #fd7e14;
-        margin-right: 10px;
+    .summary-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        will-change: transform;
     }
     
     .summary-card {
-        background-color: rgba(40, 40, 61, 0.7);
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 30px;
-        text-align: center;
+        background: rgba(30, 30, 47, 0.5);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: transform 0.3s, background 0.3s, border-color 0.3s;
+        will-change: transform;
+    }
+    
+    .summary-card:hover {
+        transform: translateY(-5px);
+        background: rgba(30, 30, 47, 0.7);
+        border-color: rgba(61, 132, 255, 0.3);
+    }
+    
+    .summary-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .text-warning {
+        color: #ffc107;
+    }
+    
+    .text-info {
+        color: #3d84ff;
+    }
+    
+    .text-success {
+        color: #28a745;
     }
     
     .summary-count {
         font-size: 2.5rem;
-        font-weight: bold;
+        font-weight: 700;
         color: #fff;
-        margin: 10px 0;
+        margin-bottom: 0.5rem;
     }
     
     .summary-label {
+        font-size: 0.95rem;
         color: rgba(255, 255, 255, 0.7);
-        font-size: 1rem;
+    }
+    
+    .fine-list {
+        contain: content;
+    }
+    
+    .fine-item {
+        background: rgba(30, 30, 47, 0.4);
+        border-radius: 12px;
+        margin-bottom: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
+        overflow: hidden;
+        will-change: transform;
+    }
+    
+    .fine-item:hover {
+        transform: translateY(-3px);
+        background: rgba(30, 30, 47, 0.6);
+        border-color: rgba(61, 132, 255, 0.2);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .fine-content {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 1rem;
+        padding: 1.2rem;
+        align-items: center;
+    }
+    
+    @media (max-width: 768px) {
+        .fine-content {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        
+        .fine-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+    }
+    
+    .fine-icon {
+        font-size: 2rem;
+        color: #3d84ff;
+    }
+    
+    .fine-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .fine-type {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #f5f5f5;
+        margin: 0;
+    }
+    
+    .fine-vehicle {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .fine-date {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .fine-amount {
+        font-size: 1.6rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, #3d84ff, #63d1ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    .fine-actions {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        gap: 0.3rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .badge-unpaid {
+        background: rgba(220, 53, 69, 0.2);
+        color: #ff6b6b;
+        border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+    
+    .badge-paid {
+        background: rgba(40, 167, 69, 0.2);
+        color: #51cf66;
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+    
+    .badge-processing {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffd43b;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: none;
+        transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        will-change: transform;
+    }
+    
+    .btn-view {
+        background: rgba(61, 132, 255, 0.1);
+        color: #3d84ff;
+        border: 1px solid rgba(61, 132, 255, 0.2);
+    }
+    
+    .btn-view:hover {
+        background: rgba(61, 132, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(61, 132, 255, 0.2);
+        color: #3d84ff;
+        text-decoration: none;
+    }
+    
+    .btn-download {
+        background: rgba(99, 209, 255, 0.1);
+        color: #63d1ff;
+        border: 1px solid rgba(99, 209, 255, 0.2);
+    }
+    
+    .btn-download:hover {
+        background: rgba(99, 209, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 209, 255, 0.2);
+        color: #63d1ff;
+        text-decoration: none;
+    }
+    
+    .btn-pay {
+        background: linear-gradient(45deg, #ff8e3c, #ff4d4d);
+        color: white;
+        box-shadow: 0 2px 8px rgba(255, 77, 77, 0.3);
+    }
+    
+    .btn-pay:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 77, 77, 0.4);
+        background: linear-gradient(45deg, #ff4d4d, #ff8e3c);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-receipt {
+        background: linear-gradient(45deg, #20c997, #38d39f);
+        color: white;
+        box-shadow: 0 2px 8px rgba(32, 201, 151, 0.3);
+    }
+    
+    .btn-receipt:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(32, 201, 151, 0.4);
+        background: linear-gradient(45deg, #38d39f, #20c997);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .document-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(61, 132, 255, 0.1);
+        color: #3d84ff;
+        border-radius: 4px;
+        padding: 0.1rem 0.3rem;
+        font-size: 0.7rem;
+        margin-left: 0.5rem;
     }
     
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
+        padding: 3rem 1rem;
     }
     
     .empty-icon {
         font-size: 4rem;
-        color: rgba(255, 255, 255, 0.2);
-        margin-bottom: 20px;
+        color: rgba(255, 255, 255, 0.1);
+        margin-bottom: 1.5rem;
     }
     
-    .filter-section {
-        margin-bottom: 30px;
-        padding: 15px;
-        background-color: rgba(40, 40, 61, 0.5);
-        border-radius: 10px;
+    .empty-state h3 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        color: #f5f5f5;
+    }
+    
+    .empty-state p {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.6);
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .footer-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-outline {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #f5f5f5;
+        padding: 0.7rem 1.4rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-outline:hover {
+        border-color: rgba(61, 132, 255, 0.5);
+        background: rgba(61, 132, 255, 0.1);
+        transform: translateY(-2px);
+        color: #f5f5f5;
+        text-decoration: none;
+    }
+    
+    .bg-blur {
+        position: fixed;
+        border-radius: 50%;
+        z-index: -1;
+        filter: blur(100px);
+        opacity: 0.05;
+    }
+    
+    .blur-1 {
+        width: 300px;
+        height: 300px;
+        background: rgba(61, 132, 255, 0.1);
+        top: -100px;
+        right: -100px;
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .blur-2 {
+        width: 400px;
+        height: 400px;
+        background: rgba(99, 209, 255, 0.1);
+        bottom: -150px;
+        left: -150px;
+        animation: float 8s ease-in-out infinite reverse;
+    }
+    
+    .alert {
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        animation: slideIn 0.5s ease-out;
+        backdrop-filter: blur(10px);
+        border: 1px solid transparent;
+        position: relative;
+    }
+    
+    .alert-success {
+        background-color: rgba(40, 167, 69, 0.2);
+        border-color: rgba(40, 167, 69, 0.3);
+        color: #51cf66;
+    }
+    
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #ff6b6b;
+    }
+    
+    .alert-warning {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-color: rgba(255, 193, 7, 0.3);
+        color: #ffd43b;
+    }
+    
+    .alert-info {
+        background-color: rgba(23, 162, 184, 0.2);
+        border-color: rgba(23, 162, 184, 0.3);
+        color: #3bc9db;
+    }
+    
+    .close {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        color: inherit;
+        opacity: 0.8;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+    }
+    
+    .close:hover {
+        opacity: 1;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if ('IntersectionObserver' in window) {
+            const fineObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        fineObserver.unobserve(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '100px 0px',
+                threshold: 0.1
+            });
+            
+            document.querySelectorAll('.fine-item').forEach(item => {
+                fineObserver.observe(item);
+            });
+        }
+        
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reducedMotion) {
+            document.body.classList.add('reduced-motion');
+        }
+    });
+</script>
 {% endblock %}
 
 {% block content %}
+<!-- Background blur effects -->
+<div class="bg-blur blur-1"></div>
+<div class="bg-blur blur-2"></div>
+
 <div class="container py-5">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="text-center mb-4">My Vehicle Fines</h1>
-            
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'info' %}alert-info{% else %}alert-warning{% endif %} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-            
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="summary-card">
-                        <i class="fas fa-exclamation-circle text-warning"></i>
-                        <div class="summary-count">{{ unpaid_fines_count }}</div>
-                        <div class="summary-label">Unpaid Fines</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="summary-card">
-                        <i class="fas fa-car text-info"></i>
-                        <div class="summary-count">{{ fines.count }}</div>
-                        <div class="summary-label">Total Fines</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="summary-card">
-                        <i class="fas fa-check-circle text-success"></i>
-                        <div class="summary-count">{{ fines.count|add:"-"|add:unpaid_fines_count }}</div>
-                        <div class="summary-label">Paid Fines</div>
-                    </div>
-                </div>
+    <h1 class="page-title">My Vehicle Fines</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'info' %}alert-info{% else %}alert-warning{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            
-            {% if fines %}
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h3 class="mb-0">My Fines</h3>
-                    </div>
-                    <div class="card-body">
-                        {% for fine in fines %}
-                            <div class="fine-item">
-                                <div class="row align-items-center">
-                                    <div class="col-md-1 d-none d-md-block text-center">
-                                        <i class="fas fa-file-invoice-dollar fine-icon"></i>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <h5 class="mb-1">{{ fine.violation_type }}</h5>
-                                        <div>{{ fine.vehicle.registration_number }}</div>
-                                        <small class="text-muted">{{ fine.imposed_date|date:"F d, Y" }}</small>
-                                    </div>
-                                    <div class="col-md-2 text-md-center">
-                                        <div class="fine-amount">₹{{ fine.fine_amount }}</div>
-                                    </div>
-                                    <div class="col-md-2 text-md-center">
+        {% endfor %}
+    {% endif %}
+    
+    <div class="summary-section">
+        <div class="summary-card">
+            <i class="fas fa-exclamation-circle summary-icon text-warning"></i>
+            <div class="summary-count">{{ unpaid_fines_count }}</div>
+            <div class="summary-label">Unpaid Fines</div>
+        </div>
+        <div class="summary-card">
+            <i class="fas fa-car summary-icon text-info"></i>
+            <div class="summary-count">{{ fines.count }}</div>
+            <div class="summary-label">Total Fines</div>
+        </div>
+        <div class="summary-card">
+            <i class="fas fa-check-circle summary-icon text-success"></i>
+            <div class="summary-count">{{ fines.count|add:"-"|add:unpaid_fines_count }}</div>
+            <div class="summary-label">Paid Fines</div>
+        </div>
+    </div>
+    
+    {% if fines %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Fine Records</h3>
+            </div>
+            <div class="card-body">
+                <div class="fine-list">
+                    {% for fine in fines %}
+                        <div class="fine-item" data-id="{{ fine.id }}">
+                            <div class="fine-content">
+                                <div class="fine-icon-container">
+                                    <i class="fas fa-file-invoice-dollar fine-icon"></i>
+                                </div>
+                                <div class="fine-info">
+                                    <h5 class="fine-type">
+                                        {{ fine.violation_type }}
+                                        {% if fine.violation_document %}
+                                        <span class="document-badge">
+                                            <i class="fas {% if fine.get_document_type == 'pdf' %}fa-file-pdf{% else %}fa-file-image{% endif %}"></i>
+                                        </span>
+                                        {% endif %}
+                                    </h5>
+                                    <div class="fine-vehicle">{{ fine.vehicle.registration_number }}</div>
+                                    <div class="fine-date">{{ fine.imposed_date|date:"F d, Y" }}</div>
+                                    <div class="fine-amount">₹{{ fine.fine_amount }}</div>
+                                    <div class="fine-status">
                                         {% if fine.payment_status == 'Unpaid' %}
-                                            <span class="badge badge-unpaid">
+                                            <span class="status-badge badge-unpaid">
                                                 <i class="fas fa-times-circle"></i> Unpaid
                                             </span>
                                         {% elif fine.payment_status == 'Paid' %}
-                                            <span class="badge badge-paid">
+                                            <span class="status-badge badge-paid">
                                                 <i class="fas fa-check-circle"></i> Paid
                                             </span>
                                         {% elif fine.payment_status == 'Processing' %}
-                                            <span class="badge badge-processing">
-                                                <i class="fas fa-spinner fa-spin"></i> Processing
+                                            <span class="status-badge badge-processing">
+                                                <i class="fas fa-spinner"></i> Processing
                                             </span>
                                         {% endif %}
                                     </div>
-                                    <div class="col-md-4 mt-3 mt-md-0 text-md-right">
-                                        <a href="{% url 'fine_details' fine_id=fine.id %}" class="btn-view">
-                                            <i class="fas fa-eye"></i> View Details
+                                </div>
+                                <div class="fine-actions">
+                                    <a href="{% url 'fine_details' fine_id=fine.id %}" class="btn btn-view">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                    {% if fine.violation_document %}
+                                    <a href="{% url 'view_violation_document' fine_id=fine.id %}?download=1" class="btn btn-download">
+                                        <i class="fas fa-download"></i> Document
+                                    </a>
+                                    {% endif %}
+                                    {% if fine.payment_status == 'Unpaid' %}
+                                        <a href="{% url 'pay_fine' fine_id=fine.id %}" class="btn btn-pay">
+                                            <i class="fas fa-credit-card"></i> Pay Fine
                                         </a>
-                                        {% if fine.payment_status == 'Unpaid' %}
-                                            <a href="{% url 'pay_fine' fine_id=fine.id %}" class="btn-pay ml-2">
-                                                <i class="fas fa-credit-card"></i> Pay Fine
-                                            </a>
-                                        {% elif fine.payment_status == 'Processing' %}
-                                            <a href="{% url 'pay_fine' fine_id=fine.id %}" class="btn-pay ml-2">
-                                                <i class="fas fa-sync-alt"></i> Continue Payment
-                                            </a>
-                                        {% elif fine.payment_status == 'Paid' and fine.payment_receipt_number %}
-                                            <a href="{% url 'payment_receipt' receipt_number=fine.payment_receipt_number %}" class="btn-view ml-2" style="background: linear-gradient(45deg, #28a745, #20c997);">
-                                                <i class="fas fa-file-invoice"></i> Receipt
-                                            </a>
-                                        {% endif %}
-                                    </div>
+                                    {% elif fine.payment_status == 'Processing' %}
+                                        <a href="{% url 'pay_fine' fine_id=fine.id %}" class="btn btn-pay">
+                                            <i class="fas fa-sync-alt"></i> Continue Payment
+                                        </a>
+                                    {% elif fine.payment_status == 'Paid' and fine.payment_receipt_number %}
+                                        <a href="{% url 'payment_receipt' receipt_number=fine.payment_receipt_number %}" class="btn btn-receipt">
+                                            <i class="fas fa-file-invoice"></i> Receipt
+                                        </a>
+                                    {% endif %}
                                 </div>
                             </div>
-                        {% endfor %}
-                    </div>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% else %}
-                <div class="card">
-                    <div class="card-body empty-state">
-                        <i class="fas fa-check-circle empty-icon"></i>
-                        <h3>No Fines Found</h3>
-                        <p>You don't have any fines associated with your vehicles. Keep driving safely!</p>
-                    </div>
-                </div>
-            {% endif %}
-            
-            <div class="text-center mt-4">
-                <a href="{% url 'personalized_vehicles' %}" class="btn btn-outline-light">
-                    <i class="fas fa-car"></i> My Vehicles
-                </a>
-                <a href="{% url 'home' %}" class="btn btn-outline-light ml-2">
-                    <i class="fas fa-home"></i> Home
-                </a>
             </div>
         </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body empty-state">
+                <i class="fas fa-check-circle empty-icon"></i>
+                <h3>No Fines Found</h3>
+                <p>You don't have any fines associated with your vehicles. Keep driving safely!</p>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="footer-actions">
+        <a href="{% url 'personalized_vehicles' %}" class="btn-outline">
+            <i class="fas fa-car"></i> My Vehicles
+        </a>
+        <a href="{% url 'home' %}" class="btn-outline">
+            <i class="fas fa-home"></i> Home
+        </a>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.fa-spinner.fa-spin').forEach(function(spinner) {
+            spinner.classList.remove('fa-spin');
+        });
+        
+        document.body.classList.add('page-loaded');
+        
+        const fineItems = document.querySelectorAll('.fine-item');
+        for (let i = 0; i < fineItems.length; i++) {
+            const delay = Math.min(i * 50, 300);
+            setTimeout(() => {
+                fineItems[i].style.opacity = '1';
+            }, delay);
+        }
+    });
+</script>
 {% endblock %} 

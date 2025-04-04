@@ -62,6 +62,12 @@ urlpatterns = [
     # Media serving URL
     path('media/<path:path>/', views.serve_media_file, name='serve_media_file'),
     
+    # Violation document view
+    path('fine/<int:fine_id>/document/', views.view_violation_document, name='view_violation_document'),
+    
+    # View document from ViolationDocument model
+    path('document/<int:document_id>/', views.view_document, name='view_document'),
+    
     # Debug view for PDF files 
     path('debug/pdf-files/', views.debug_pdf_files, name='debug_pdf_files'),
     

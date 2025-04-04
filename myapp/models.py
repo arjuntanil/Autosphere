@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from django.utils.crypto import get_random_string
+import uuid
+import os
 
 # Create your models here.
 
@@ -27,6 +29,13 @@ from django.db import models
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+def user_profile_picture_path(instance, filename):
+    """Generate a custom path for uploaded profile pictures"""
+    # Get file extension
+    ext = filename.split('.')[-1]
+    # Create directory based on user ID, create unique filename
+    return f'profile_pictures/{instance.id}/{uuid.uuid4().hex}.{ext}'
+
 class CustomUser(AbstractUser):
     USER_TYPES = (
         ('User', 'User'),
@@ -39,6 +48,7 @@ class CustomUser(AbstractUser):
     location = models.CharField(max_length=255, null=True, blank=True)  # RTO location
     reg_number = models.CharField(max_length=20, unique=True, null=True, blank=True)  # Unique Registration Number for RTO
     date_joined = models.DateTimeField(auto_now_add=True)  # This will be automatically set
+    profile_picture = models.ImageField(upload_to=user_profile_picture_path, null=True, blank=True)
 
     def __str__(self):
         return self.username
@@ -175,6 +185,13 @@ class VehicleFine(models.Model):
         ('Processing', 'Processing')  # Added for payment in progress
     ]
     
+    def get_violation_document_path(instance, filename):
+        """Generate a custom path for uploaded violation documents"""
+        # Get file extension
+        ext = filename.split('.')[-1]
+        # Create directory based on fine ID, create unique filename
+        return f'violation_documents/{instance.id}/{uuid.uuid4().hex}.{ext}'
+    
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='fines')
     violation_type = models.CharField(max_length=50, choices=VIOLATION_TYPES)
     description = models.TextField(blank=True, null=True)
@@ -185,7 +202,12 @@ class VehicleFine(models.Model):
     due_date = models.DateTimeField()
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='Unpaid')
     payment_date = models.DateTimeField(null=True, blank=True)
-    violation_document = models.FileField(upload_to='violation_documents/', null=True, blank=True, help_text="Upload a PDF document related to the violation (optional)")
+    violation_document = models.FileField(
+        upload_to=get_violation_document_path,
+        null=True,
+        blank=True,
+        help_text="Upload a PDF document or image (JPG, JPEG, PNG) related to the violation (optional)"
+    )
     razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
     razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)
     razorpay_signature = models.CharField(max_length=200, null=True, blank=True)
@@ -205,9 +227,41 @@ class VehicleFine(models.Model):
         if self.payment_status == 'Unpaid' and self.due_date < timezone.now():
             return True
         return False
+        
+    @property
+    def all_documents(self):
+        """Get all documents related to this fine"""
+        return self.documents.all()
+        
+    @property
+    def has_documents(self):
+        """Check if this fine has any documents attached"""
+        return self.documents.exists()
+    
+    def get_document_type(self):
+        """Get the type of violation document (PDF, Image, or None)"""
+        if not self.violation_document:
+            return None
+            
+        filename = self.violation_document.name.lower()
+        if filename.endswith('.pdf'):
+            return 'pdf'
+        elif any(filename.endswith(ext) for ext in ['.jpg', '.jpeg', '.png']):
+            return 'image'
+        else:
+            return 'other'
     
     def save(self, *args, **kwargs):
         """Set due date 30 days from imposed date if not specified"""
+        # Store old violation_document path before saving (for custom upload path handling)
+        old_document = None
+        if self.pk:
+            try:
+                old_fine = VehicleFine.objects.get(pk=self.pk)
+                old_document = old_fine.violation_document if old_fine.violation_document else None
+            except VehicleFine.DoesNotExist:
+                pass
+                
         if not self.due_date:
             self.due_date = timezone.now() + timezone.timedelta(days=30)
         
@@ -220,8 +274,34 @@ class VehicleFine(models.Model):
             
             if not self.payment_date:
                 self.payment_date = timezone.now()
-                
+        
+        # Call the standard save method
         super().save(*args, **kwargs)
+        
+        # Handle the case where we're using the get_violation_document_path for file upload
+        # If we create a fine without ID, we need to rename the file after we have an ID
+        if old_document != self.violation_document and self.violation_document and 'violation_documents/None/' in self.violation_document.name:
+            # Update the path to include the fine ID
+            new_path = self.violation_document.name.replace('violation_documents/None/', f'violation_documents/{self.id}/')
+            
+            # Move the file to the new location
+            from django.conf import settings
+            old_path = os.path.join(settings.MEDIA_ROOT, self.violation_document.name)
+            new_dir = os.path.join(settings.MEDIA_ROOT, f'violation_documents/{self.id}/')
+            os.makedirs(new_dir, exist_ok=True)
+            
+            new_full_path = os.path.join(settings.MEDIA_ROOT, new_path)
+            if os.path.exists(old_path):
+                # Ensure the directory exists
+                os.makedirs(os.path.dirname(new_full_path), exist_ok=True)
+                # Move the file
+                import shutil
+                shutil.move(old_path, new_full_path)
+                
+                # Update the model with the new path
+                self.violation_document.name = new_path
+                # Save again but without triggering the full save logic
+                VehicleFine.objects.filter(pk=self.pk).update(violation_document=new_path)
         
     def get_payment_history(self):
         """Get the payment history for this fine"""
@@ -230,7 +310,6 @@ class VehicleFine(models.Model):
     def get_latest_payment_attempt(self):
         """Get the latest payment attempt for this fine"""
         return self.payments.order_by('-created_at').first()
-
 
 class FinePayment(models.Model):
     """Model for payment records related to vehicle fines"""
@@ -338,7 +417,7 @@ class UserNotification(models.Model):
         verbose_name_plural = 'User Notifications'
     
     def __str__(self):
-        return f"{self.notification_type} - {self.title} - {self.user.username}"
+        return f"{self.notification_type} - {self.title}"
     
     @classmethod
     def create_fine_notification(cls, fine):
@@ -385,6 +464,41 @@ class UserNotification(models.Model):
                 related_notice=notice
             )
             notification.save()
+
+def violation_document_upload_path(instance, filename):
+    """Generate a custom path for uploaded violation documents"""
+    # Get file extension
+    ext = filename.split('.')[-1]
+    # Create a directory based on fine ID and create a unique filename
+    return f'violation_documents/{instance.fine.id}/{uuid.uuid4().hex}.{ext}'
+
+
+class ViolationDocument(models.Model):
+    """Model for storing documents related to vehicle violations"""
+    
+    fine = models.ForeignKey(VehicleFine, on_delete=models.CASCADE, related_name='documents')
+    file = models.FileField(upload_to=violation_document_upload_path)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    original_filename = models.CharField(max_length=255, blank=True)
+    
+    class Meta:
+        ordering = ['uploaded_at']
+    
+    def __str__(self):
+        return f"Document for Fine #{self.fine.id}"
+        
+    def get_document_type(self):
+        """Get the type of document (PDF, Image, or Other)"""
+        if not self.file:
+            return None
+            
+        filename = self.file.name.lower()
+        if filename.endswith('.pdf'):
+            return 'pdf'
+        elif any(filename.endswith(ext) for ext in ['.jpg', '.jpeg', '.png']):
+            return 'image'
+        else:
+            return 'other'
 
 class VehicleModificationRequest(models.Model):
     REQUEST_TYPES = [

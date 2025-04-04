@@ -365,8 +365,8 @@
             <a href="{% url 'rto_home' %}" class="nav-link">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a href="{% url 'impose_fine' %}" class="nav-link">
-                <i class="fas fa-plus"></i> Impose Fine
+            <a href="{% url 'logout' %}" class="nav-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </nav>
     </header>
@@ -374,10 +374,7 @@
     <main>
         <section class="content-section">
             <div class="section-header">
-                <h1 class="section-title">Manage Fines</h1>
-                <a href="{% url 'impose_fine' %}" class="action-btn">
-                    <i class="fas fa-plus"></i> Impose New Fine
-                </a>
+                <h1 class="section-title">My Imposed Fines</h1>
             </div>
             
             <div class="search-filter-section">
@@ -449,6 +446,7 @@
                             <th>Imposed Date</th>
                             <th>Due Date</th>
                             <th>Status</th>
+                            <th>Document</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -466,6 +464,23 @@
                                 <span class="status-badge status-{{ fine.payment_status|lower }}">
                                     {{ fine.payment_status }}
                                 </span>
+                            </td>
+                            <td>
+                                {% if fine.violation_document %}
+                                    {% if fine.get_document_type == 'pdf' %}
+                                        <a href="{% url 'view_violation_document' fine_id=fine.id %}" target="_blank" title="View PDF Document">
+                                            <i class="fas fa-file-pdf" style="color: #dc3545;"></i>
+                                        </a>
+                                    {% elif fine.get_document_type == 'image' %}
+                                        <a href="{% url 'view_violation_document' fine_id=fine.id %}" target="_blank" title="View Image">
+                                            <i class="fas fa-file-image" style="color: #0d6efd;"></i>
+                                        </a>
+                                    {% else %}
+                                        <i class="fas fa-file" style="color: #6c757d;"></i>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
                             </td>
                             <td class="table-actions">
                                 <a href="{% url 'update_fine_status' fine.id %}" class="action-btn btn-sm btn-update">
@@ -488,7 +503,7 @@
                 <i class="fas fa-receipt"></i>
                 <p class="empty-state-message">No fines found matching your criteria</p>
                 <a href="{% url 'impose_fine' %}" class="action-btn">
-                    <i class="fas fa-plus"></i> Impose New Fine
+                    <i class="fas fa-plus"></i> Impose Fine
                 </a>
             </div>
             {% endif %}

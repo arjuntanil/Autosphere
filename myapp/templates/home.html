@@ -110,6 +110,35 @@
             letter-spacing: 1px;
         }
 
+        /* User Profile Styles */
+        .user-profile-pic {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(61, 132, 255, 0.7);
+            margin-right: 10px;
+            box-shadow: 0 0 6px rgba(61, 132, 255, 0.4);
+            background: rgba(0, 0, 0, 0.2);
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .nav-link:hover .user-profile-pic {
+            transform: scale(1.05);
+            border-color: #63d1ff;
+        }
+
         /* Header Search Styles */
         .header-search {
             flex: 1;
@@ -204,6 +233,12 @@
         .nav-link i {
             font-size: 0.9rem;
             color: #3d84ff;
+        }
+
+        .profile-link-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
         }
 
         main {
@@ -1916,59 +1951,68 @@
     <div class="bg-blur blur-3"></div>
 
     <header>
-        <a href="/" class="logo">
+        <a href="{% url 'home' %}" class="logo">
             <i class="fas fa-car-side"></i>
             <h1>AutoSphere</h1>
         </a>
-        
-        <div class="header-search">
-            <form method="GET" action="{% url 'search_vehicle' %}" class="header-search-form">
-                <div class="header-search-container">
-                    <input type="text" name="q" class="header-search-input" placeholder="Search by registration number" required>
-                    <button type="submit" class="header-search-btn">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </form>
-        </div>
-        
+        <form action="{% url 'search_vehicle' %}" method="GET" class="header-search-form">
+            <div class="header-search-container">
+                <input type="text" name="q" placeholder="Search vehicle by registration number..." class="header-search-input">
+                <button type="submit" class="header-search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
         <div class="nav-links">
             {% if user.is_authenticated %}
-            <!-- Notification Button -->
-            <div class="notification-container">
-                <a href="{% url 'notifications' %}" class="notification-btn">
+                {% if user.is_rto %}
+                <a href="{% url 'rto_home' %}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>RTO Dashboard</span>
+                </a>
+                {% endif %}
+                <a href="{% url 'personalized_vehicles' %}" class="nav-link">
+                    <i class="fas fa-car"></i>
+                    <span>My Vehicles</span>
+                </a>
+                <a href="{% url 'notifications' %}" class="nav-link">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-count" id="notificationCount">0</span>
+                    <span id="notificationCount" class="notification-count">0</span>
                 </a>
-            </div>
-            <a href="{% url 'personalized_vehicles' %}" class="nav-link">
-                <i class="fas fa-car"></i> Vehicles
-            </a>
-            <a href="{% url 'profile' %}" class="nav-link">
-                <i class="fas fa-user"></i> Profile
-            </a>
-            <form method="post" action="{% url 'logout' %}" style="margin: 0;">
-                {% csrf_token %}
-                <button type="submit" class="nav-link">
-                    <i class="fas fa-sign-out-alt"></i> Exit
-                </button>
-            </form>
+                <a href="{% url 'profile' %}" class="nav-link">
+                    <div class="profile-link-content">
+                        {% if user.profile_picture %}
+                        <div class="user-profile-pic">
+                            <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}'s profile">
+                        </div>
+                        {% else %}
+                        <i class="fas fa-user"></i>
+                        {% endif %}
+                        <span>{{ user.username }}</span>
+                    </div>
+                </a>
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
             {% else %}
-            <div class="auth-links">
-                <a href="{% url 'login' %}" class="nav-link">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </a>
-                <a href="{% url 'register' %}" class="nav-link">
-                    <i class="fas fa-user-plus"></i> Register
-                </a>
-            </div>
+                <div class="auth-links">
+                    <a href="{% url 'login' %}" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </a>
+                    <a href="{% url 'register' %}" class="nav-link register-link">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Register</span>
+                    </a>
+                </div>
             {% endif %}
         </div>
     </header>
 
     <div class="container">
         <main>
-            {% if messages %}
+            {% comment %} {% if messages %}
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags }}">
                         {{ message }}
@@ -1980,7 +2024,7 @@
                 <div class="alert alert-success">
                     {{ update_message }}
                 </div>
-            {% endif %}
+            {% endif %} {% endcomment %}
             
             <section class="welcome-section">
                 <h2>Welcome to AutoSphere</h2>

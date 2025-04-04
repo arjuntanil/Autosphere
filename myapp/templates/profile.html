@@ -128,6 +128,14 @@
             font-size: 3rem;
             color: #fff;
             animation: float 3s ease-in-out infinite;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .profile-body {
@@ -224,7 +232,11 @@
         <div class="profile-card">
             <div class="profile-header">
                 <div class="profile-avatar">
-                    <i class="fas fa-user"></i>
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}'s profile picture">
+                    {% else %}
+                        <i class="fas fa-user"></i>
+                    {% endif %}
                 </div>
                 <h2 class="profile-name">{{ user.username }}</h2>
                 <p class="profile-email">{{ user.email }}</p>
