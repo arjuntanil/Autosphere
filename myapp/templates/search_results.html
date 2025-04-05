@@ -731,6 +731,20 @@
                             </div>
                         </div>
                         <div class="detail-item">
+                            <i class="fas fa-truck detail-icon"></i>
+                            <div class="detail-content">
+                                <div class="detail-label">Vehicle Type</div>
+                                <div class="detail-value">{{ vehicle.get_vehicle_type_display }}</div>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt detail-icon"></i>
+                            <div class="detail-content">
+                                <div class="detail-label">Registration Office</div>
+                                <div class="detail-value">{{ vehicle.location|default:"Not specified" }}</div>
+                            </div>
+                        </div>
+                        <div class="detail-item">
                             <i class="fas fa-calendar-alt detail-icon"></i>
                             <div class="detail-content">
                                 <div class="detail-label">Registration Valid Until</div>

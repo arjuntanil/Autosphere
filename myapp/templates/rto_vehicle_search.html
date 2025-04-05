@@ -260,6 +260,163 @@
             font-size: 0.85rem;
             line-height: 1.5;
         }
+
+        /* Fine details styling */
+        .fines-section {
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+        }
+        
+        .fines-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .fines-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .fines-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .fine-stat {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .fine-count-label {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+        
+        .fine-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .fine-amount {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-top: 0.3rem;
+        }
+        
+        .fine-count.paid {
+            color: #34c759;
+        }
+        
+        .fine-count.unpaid {
+            color: #ff3b30;
+        }
+        
+        .fine-count.contested {
+            color: #ff9500;
+        }
+        
+        .fine-count.waived {
+            color: #5ac8fa;
+        }
+        
+        .fine-count.processing {
+            color: #9013fe;
+        }
+        
+        .recent-fines-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .recent-fine-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid;
+        }
+        
+        .recent-fine-item.paid {
+            border-left-color: #34c759;
+        }
+        
+        .recent-fine-item.unpaid {
+            border-left-color: #ff3b30;
+        }
+        
+        .recent-fine-item.contested {
+            border-left-color: #ff9500;
+        }
+        
+        .recent-fine-item.waived {
+            border-left-color: #5ac8fa;
+        }
+        
+        .recent-fine-item.processing {
+            border-left-color: #9013fe;
+        }
+        
+        .fine-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        
+        .fine-date {
+            font-size: 0.8rem;
+            color: #a0a0a0;
+        }
+        
+        .fine-details {
+            font-size: 0.95rem;
+            color: #f5f5f5;
+        }
+        
+        .fine-amount-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f5f5f5;
+        }
+        
+        .view-all-fines {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .view-all-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(61, 132, 255, 0.1);
+            color: #3d84ff;
+            border: 1px solid rgba(61, 132, 255, 0.3);
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .view-all-btn:hover {
+            background: rgba(61, 132, 255, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -320,10 +477,12 @@
                                 <span class="detail-label">Chassis Number</span>
                                 <span class="detail-value">{{ vehicle.chassis_number }}</span>
                             </div>
+                            {% if vehicle.engine_number %}
                             <div class="detail-item">
                                 <span class="detail-label">Engine Number</span>
                                 <span class="detail-value">{{ vehicle.engine_number }}</span>
                             </div>
+                            {% endif %}
                             <div class="detail-item">
                                 <span class="detail-label">Manufacturer</span>
                                 <span class="detail-value">{{ vehicle.manufacturer }}</span>
@@ -332,10 +491,12 @@
                                 <span class="detail-label">Model</span>
                                 <span class="detail-value">{{ vehicle.model }}</span>
                             </div>
+                            {% if vehicle.year %}
                             <div class="detail-item">
                                 <span class="detail-label">Year</span>
                                 <span class="detail-value">{{ vehicle.year }}</span>
                             </div>
+                            {% endif %}
                             <div class="detail-item">
                                 <span class="detail-label">Color</span>
                                 <span class="detail-value">{{ vehicle.color }}</span>
@@ -345,10 +506,103 @@
                                 <span class="detail-value">{{ vehicle.fuel_type }}</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">Registration Date</span>
-                                <span class="detail-value">{{ vehicle.registration_date|date:"d M Y" }}</span>
+                                <span class="detail-label">Vehicle Type</span>
+                                <span class="detail-value">{{ vehicle.get_vehicle_type_display }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Registration Office</span>
+                                <span class="detail-value">{{ vehicle.location|default:"Not specified" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Registration Validity</span>
+                                <span class="detail-value">{{ vehicle.registration_validity_date|date:"d M Y" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">PUC Validity</span>
+                                <span class="detail-value">{{ vehicle.puc_validity_date|date:"d M Y" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Blacklisted</span>
+                                <span class="detail-value">{% if vehicle.blacklist_status %}Yes{% else %}No{% endif %}</span>
                             </div>
                         </div>
+                        
+                        {% if vehicle.total_fines > 0 %}
+                        <div class="fines-section">
+                            <div class="fines-header">
+                                <h4 class="fines-title">
+                                    <i class="fas fa-receipt"></i> Fine Records
+                                </h4>
+                            </div>
+                            
+                            <div class="fines-summary">
+                                <div class="fine-stat">
+                                    <span class="fine-count-label">Total Fines</span>
+                                    <span class="fine-count">{{ vehicle.total_fines }}</span>
+                                    <span class="fine-amount">₹{{ vehicle.total_fine_amount|floatformat:2 }}</span>
+                                </div>
+                                
+                                <div class="fine-stat">
+                                    <span class="fine-count-label">Paid</span>
+                                    <span class="fine-count paid">{{ vehicle.paid_fines }}</span>
+                                </div>
+                                
+                                <div class="fine-stat">
+                                    <span class="fine-count-label">Unpaid</span>
+                                    <span class="fine-count unpaid">{{ vehicle.unpaid_fines }}</span>
+                                    <span class="fine-amount">₹{{ vehicle.unpaid_fine_amount|floatformat:2 }}</span>
+                                </div>
+                                
+                                {% if vehicle.contested_fines > 0 %}
+                                <div class="fine-stat">
+                                    <span class="fine-count-label">Contested</span>
+                                    <span class="fine-count contested">{{ vehicle.contested_fines }}</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if vehicle.waived_fines > 0 %}
+                                <div class="fine-stat">
+                                    <span class="fine-count-label">Waived</span>
+                                    <span class="fine-count waived">{{ vehicle.waived_fines }}</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if vehicle.processing_fines > 0 %}
+                                <div class="fine-stat">
+                                    <span class="fine-count-label">Processing</span>
+                                    <span class="fine-count processing">{{ vehicle.processing_fines }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if vehicle.recent_fines %}
+                            <h5 style="margin-bottom: 0.8rem; color: #a0a0a0; font-size: 0.9rem;">Recent Fines</h5>
+                            <div class="recent-fines-list">
+                                {% for fine in vehicle.recent_fines %}
+                                <div class="recent-fine-item {{ fine.payment_status|lower }}">
+                                    <div class="fine-info">
+                                        <span class="fine-date">{{ fine.imposed_date|date:"d M Y" }}</span>
+                                        <span class="fine-details">
+                                            {{ fine.violation_type }} - {{ fine.location|truncatechars:30 }}
+                                        </span>
+                                    </div>
+                                    <div class="fine-amount-display">
+                                        ₹{{ fine.fine_amount|floatformat:2 }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% if vehicle.total_fines > 3 %}
+                            <div class="view-all-fines">
+                                <a href="{% url 'rto_fine_list' %}?vehicle_id={{ vehicle.id }}" class="view-all-btn">
+                                    <i class="fas fa-list"></i> View All Fines
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% else %}

@@ -375,6 +375,9 @@
         <section class="content-section">
             <div class="section-header">
                 <h1 class="section-title">My Imposed Fines</h1>
+                <a href="{% url 'impose_fine' %}" class="action-btn">
+                    <i class="fas fa-plus"></i> Impose New Fine
+                </a>
             </div>
             
             <div class="search-filter-section">
@@ -489,7 +492,7 @@
                                 <a href="{% url 'delete_fine' fine.id %}" class="action-btn btn-sm btn-delete">
                                     <i class="fas fa-trash"></i>
                                 </a>
-                                <a href="{% url 'fine_details' fine.id %}" class="action-btn btn-sm btn-view">
+                                <a href="{% url 'rto_fine_details' fine.id %}" class="action-btn btn-sm btn-view">
                                     <i class="fas fa-eye"></i>
                                 </a>
                             </td>

@@ -70,6 +70,14 @@ class CustomUser(AbstractUser):
         super().save(*args, **kwargs)
 
 class Vehicle(models.Model):
+    VEHICLE_TYPES = [
+        ('2-wheeler', '2-wheeler'),
+        ('3-wheeler', '3-wheeler'),
+        ('4-wheeler', '4-wheeler'),
+        ('public-transport', 'Public Transport'),
+        ('heavy-vehicle', 'Heavy Vehicle (Truck etc)'),
+    ]
+    
     owner_name = models.CharField(max_length=255)
     manufacturer = models.CharField(max_length=255)
     model = models.CharField(max_length=255)
@@ -81,10 +89,16 @@ class Vehicle(models.Model):
     fuel_type = models.CharField(max_length=50)
     registered_at = models.DateTimeField(auto_now_add=True)
     registration_number = models.CharField(max_length=20, unique=True)
-
+    vehicle_type = models.CharField(max_length=20, choices=VEHICLE_TYPES, default='4-wheeler')
+    location = models.CharField(max_length=255, null=True, blank=True, help_text="Location of the RTO office where the vehicle was registered")
+    registered_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='registered_vehicles')
 
     def __str__(self):
         return self.registration_number
+        
+    def get_vehicle_type_display(self):
+        """Return the display value for the vehicle type"""
+        return dict(self.VEHICLE_TYPES).get(self.vehicle_type, self.vehicle_type)
 
 class Notice(models.Model):
     """Model for notices/announcements created by RTO users"""

@@ -87,12 +87,29 @@ class VehicleRegistrationForm(forms.ModelForm):
             'type': 'date'
         })
     )
+    
+    vehicle_type = forms.ChoiceField(
+        choices=Vehicle.VEHICLE_TYPES,
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        }),
+        help_text="Select the type of vehicle being registered"
+    )
 
     class Meta:
         model = Vehicle
         fields = ['owner_name', 'manufacturer', 'model', 'color', 'chassis_number', 
                   'blacklist_status', 'registration_validity_date', 'puc_validity_date', 
-                  'fuel_type', 'registration_number']
+                  'fuel_type', 'registration_number', 'vehicle_type']
+        widgets = {
+            'owner_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'manufacturer': forms.TextInput(attrs={'class': 'form-control'}),
+            'model': forms.TextInput(attrs={'class': 'form-control'}),
+            'color': forms.TextInput(attrs={'class': 'form-control'}),
+            'chassis_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'blacklist_status': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'fuel_type': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
     def clean_registration_number(self):
         registration_number = self.cleaned_data.get('registration_number')
@@ -121,6 +138,18 @@ class VehicleRegistrationForm(forms.ModelForm):
             raise forms.ValidationError("This registration number is already in use")
             
         return clean_input
+        
+    def clean_chassis_number(self):
+        chassis_number = self.cleaned_data.get('chassis_number')
+        if not chassis_number:
+            raise forms.ValidationError("Chassis number is required")
+            
+        # Check if chassis number already exists
+        instance_id = getattr(self.instance, 'id', None)
+        if Vehicle.objects.filter(chassis_number=chassis_number).exclude(id=instance_id).exists():
+            raise forms.ValidationError("This chassis number is already registered with another vehicle")
+            
+        return chassis_number
 
 class NoticeForm(forms.ModelForm):
     """Form for creating and editing notices"""

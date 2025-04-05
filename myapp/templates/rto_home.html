@@ -594,6 +594,181 @@
         .search-btn:hover {
             background-position: right center;
         }
+
+        .accordion-container {
+            margin-top: 1.5rem;
+        }
+        
+        .request-accordion {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .request-accordion:hover {
+            border-color: rgba(61, 132, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .accordion-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .accordion-header:hover {
+            background-color: rgba(61, 132, 255, 0.05);
+        }
+        
+        .request-summary {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .request-vehicle {
+            font-weight: 600;
+            color: #f5f5f5;
+            min-width: 120px;
+        }
+        
+        .request-type {
+            color: #63d1ff;
+            min-width: 120px;
+        }
+        
+        .request-date {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+        
+        .accordion-toggle i {
+            color: #3d84ff;
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .request-accordion.active .accordion-toggle i {
+            transform: rotate(180deg);
+        }
+        
+        .request-accordion.active .accordion-content {
+            max-height: 500px;
+        }
+        
+        .request-details {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 0.75rem;
+        }
+        
+        .detail-label {
+            width: 150px;
+            font-weight: 500;
+            color: #a0a0a0;
+        }
+        
+        .detail-value {
+            flex: 1;
+            color: #f5f5f5;
+        }
+        
+        .request-actions {
+            padding: 0 1.5rem 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #a0a0a0;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #3d84ff;
+            opacity: 0.5;
+        }
+        
+        .empty-subtext {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .mt-5 {
+            margin-top: 2rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .section-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .view-all {
+            color: #3d84ff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .view-all:hover {
+            color: #63d1ff;
+        }
+        
+        .view-all:after {
+            content: '→';
+            transition: transform 0.3s ease;
+        }
+        
+        .view-all:hover:after {
+            transform: translateX(3px);
+        }
+
+        /* Dashboard card button styles */
+        .card-btn {
+            width: 100%; 
+            justify-content: center;
+        }
+
+        .card-btn-secondary {
+            margin-top: 0.5rem; 
+            background: rgba(61, 132, 255, 0.1) !important; 
+            color: #3d84ff !important; 
+            border: 1px solid rgba(61, 132, 255, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -653,7 +828,7 @@
                     <h3 class="card-title">Vehicle Search</h3>
                     <p class="card-description">Search and manage vehicle details including chassis number.</p>
                     <div class="card-actions">
-                        <a href="{% url 'search_vehicle' %}" class="action-btn">
+                        <a href="{% url 'search_vehicle' %}" class="action-btn card-btn">
                             <i class="fas fa-search"></i>
                             Search Vehicles
                         </a>
@@ -666,7 +841,7 @@
                     <h3 class="card-title">Vehicle Registration</h3>
                     <p class="card-description">Register new vehicles in the system with complete details.</p>
                     <div class="card-actions">
-                        <a href="{% url 'register_vehicle' %}" class="action-btn">
+                        <a href="{% url 'register_vehicle' %}" class="action-btn card-btn">
                             <i class="fas fa-plus"></i>
                             Register Vehicle
                         </a>
@@ -679,7 +854,7 @@
                     <h3 class="card-title">Fine Management</h3>
                     <p class="card-description">Manage all vehicle fines and violations.</p>
                     <div class="card-actions">
-                        <a href="{% url 'rto_fine_list' %}" class="action-btn">
+                        <a href="{% url 'rto_fine_list' %}" class="action-btn card-btn">
                             <i class="fas fa-list"></i>
                             Fines
                         </a>
@@ -692,11 +867,11 @@
                     <h3 class="card-title">Notice Management</h3>
                     <p class="card-description">Create and manage public notices and announcements.</p>
                     <div class="card-actions">
-                        <a href="{% url 'rto_notice_list' %}" class="action-btn">
+                        <a href="{% url 'rto_notice_list' %}" class="action-btn card-btn">
                             <i class="fas fa-list"></i>
                             Manage Notices
                         </a>
-                        <a href="{% url 'create_notice' %}" class="action-btn" style="margin-top: 0.5rem; background: rgba(61, 132, 255, 0.1); color: #3d84ff; border: 1px solid rgba(61, 132, 255, 0.3);">
+                        <a href="{% url 'create_notice' %}" class="action-btn card-btn card-btn-secondary">
                             <i class="fas fa-plus"></i>
                             Create Notice
                         </a>
@@ -709,11 +884,11 @@
                     <h3 class="card-title">Request Management</h3>
                     <p class="card-description">Review and process vehicle modification requests from users.</p>
                     <div class="card-actions">
-                        <a href="{% url 'rto_modification_requests' %}" class="action-btn">
+                        <a href="{% url 'rto_modification_requests' %}" class="action-btn card-btn">
                             <i class="fas fa-list"></i>
                             All Requests
                         </a>
-                        <a href="{% url 'rto_modification_requests' %}?status=pending" class="action-btn" style="margin-top: 0.5rem; background: rgba(61, 132, 255, 0.1); color: #3d84ff; border: 1px solid rgba(61, 132, 255, 0.3);">
+                        <a href="{% url 'rto_modification_requests' %}?status=pending" class="action-btn card-btn card-btn-secondary">
                             <i class="fas fa-clock"></i>
                             Pending Requests
                         </a>
@@ -723,88 +898,74 @@
             
             <div class="dashboard-content mt-5">
                 <div class="section-header">
-                    <h3>Recent Fines</h3>
-                    <a href="{% url 'rto_fine_list' %}" class="view-all">View All</a>
+                    <h3>Recent Requests</h3>
+                    <a href="{% url 'rto_modification_requests' %}?status=pending" class="view-all">View All</a>
                 </div>
                 
-                <div class="table-responsive">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Registration</th>
-                                <th>Violation</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for fine in recent_fines %}
-                            <tr>
-                                <td>{{ fine.vehicle.registration_number }}</td>
-                                <td>{{ fine.get_violation_type_display }}</td>
-                                <td>₹{{ fine.fine_amount }}</td>
-                                <td>{{ fine.imposed_date|date:"d M Y" }}</td>
-                                <td>
-                                    <span class="badge {% if fine.payment_status == 'Paid' %}badge-green{% elif fine.payment_status == 'Unpaid' %}badge-red{% else %}badge-yellow{% endif %}">
-                                        {{ fine.payment_status }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="{% url 'fine_details' fine.id %}" class="action-link">View</a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="6" class="text-center">No recent fines</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Modification Requests Section -->
-            <div class="dashboard-content mt-5">
-                <div class="section-header">
-                    <h3>Pending Modification Requests - {{ rto_jurisdiction }}</h3>
-                    <a href="{% url 'rto_modification_requests' %}" class="view-all">View All</a>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Registration Number</th>
-                                <th>User</th>
-                                <th>Modification Type</th>
-                                <th>Current Value</th>
-                                <th>Requested Value</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for request in pending_modification_requests %}
-                            <tr>
-                                <td>{{ request.vehicle.registration_number }}</td>
-                                <td>{{ request.user.username }}</td>
-                                <td>{{ request.get_request_type_display }}</td>
-                                <td>{{ request.current_value }}</td>
-                                <td>{{ request.requested_value }}</td>
-                                <td>{{ request.created_at|date:"d M Y" }}</td>
-                                <td>
-                                    <a href="{% url 'rto_modification_request_detail' request.id %}" class="action-link">Review</a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="7" class="text-center">No pending modification requests in your jurisdiction</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="accordion-container">
+                    {% for request in recent_requests %}
+                    <div class="request-accordion">
+                        <div class="accordion-header">
+                            <div class="request-summary">
+                                <div class="request-vehicle">{{ request.vehicle.registration_number }}</div>
+                                <div class="request-type">{{ request.get_request_type_display }}</div>
+                                <div class="request-date">{{ request.created_at|date:"d M Y" }}</div>
+                            </div>
+                            <div class="accordion-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="request-details">
+                                <div class="detail-row">
+                                    <div class="detail-label">Requested By:</div>
+                                    <div class="detail-value">{{ request.user.username }}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Vehicle:</div>
+                                    <div class="detail-value">{{ request.vehicle.registration_number }} ({{ request.vehicle.model }})</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Request Type:</div>
+                                    <div class="detail-value">{{ request.get_request_type_display }}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Current Value:</div>
+                                    <div class="detail-value">{{ request.current_value }}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Requested Value:</div>
+                                    <div class="detail-value">{{ request.requested_value }}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Status:</div>
+                                    <div class="detail-value"><span class="badge badge-yellow">{{ request.status|title }}</span></div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Date Requested:</div>
+                                    <div class="detail-value">{{ request.created_at|date:"d M Y, h:i A" }}</div>
+                                </div>
+                                {% if request.user_comments %}
+                                <div class="detail-row">
+                                    <div class="detail-label">User Comments:</div>
+                                    <div class="detail-value">{{ request.user_comments }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="request-actions">
+                                <a href="{% url 'rto_modification_request_detail' request.id %}" class="action-btn card-btn">
+                                    <i class="fas fa-eye"></i> Review Request
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-inbox empty-icon"></i>
+                        <p>No pending modification requests in your jurisdiction</p>
+                        <p class="empty-subtext">When users submit requests for vehicle modifications, they will appear here</p>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </section>
@@ -823,5 +984,20 @@
             {{ update_message }}
         </div>
     {% endif %}
+
+    <script>
+        // Add event listeners to accordion headers
+        document.addEventListener('DOMContentLoaded', function() {
+            const accordions = document.querySelectorAll('.request-accordion');
+            
+            accordions.forEach(accordion => {
+                const header = accordion.querySelector('.accordion-header');
+                
+                header.addEventListener('click', () => {
+                    accordion.classList.toggle('active');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

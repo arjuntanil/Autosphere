@@ -19,8 +19,8 @@
             --bg-dark: #121212;
             --bg-card: #1e1e1e;
             --bg-input: #252525;
-            --text-light: #f5f7fa;
-            --text-muted: #e1e8ed;
+            --text-light: #f5f5f5;
+            --text-muted: #a0a0a0;
             --border-color: #333;
             --accent-blue: #3d84ff;
             --accent-light-blue: #63d1ff;
@@ -51,81 +51,77 @@
             }
         }
 
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 0.6; }
+            100% { opacity: 0.4; }
+        }
+
         body {
-            background: var(--bg-dark);
-            background-image: 
-                linear-gradient(45deg, #121212, #1a1a1a, #242424),
-                radial-gradient(circle at 15% 50%, rgba(61, 132, 255, 0.08) 0%, transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(99, 209, 255, 0.08) 0%, transparent 25%);
-            background-size: 400% 400%, 100% 100%, 100% 100%;
+            background-color: #121212;
+            background-image: linear-gradient(45deg, #121212, #1a1a1a, #242424);
+            background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             min-height: 100vh;
             overflow-x: hidden;
             color: var(--text-light);
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
-        .particles {
+        .bg-blur {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
+            width: 50vw;
+            height: 50vw;
             border-radius: 50%;
-            background: rgba(99, 209, 255, 0.1);
-            box-shadow: 0 0 10px rgba(61, 132, 255, 0.3);
-            animation: float-particle 20s infinite linear;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.3;
+            animation: pulse 10s infinite alternate;
         }
 
-        @keyframes float-particle {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-1000px) rotate(720deg);
-                opacity: 0;
-            }
+        .blur-1 {
+            top: -10vw;
+            right: -10vw;
+            background: radial-gradient(circle, rgba(61, 132, 255, 0.8), transparent 70%);
         }
 
-        .header {
-            padding: 1.5rem 2rem;
-            background-color: rgba(0, 0, 0, 0.4);
+        .blur-2 {
+            bottom: -15vw;
+            left: -15vw;
+            background: radial-gradient(circle, rgba(99, 209, 255, 0.8), transparent 70%);
+        }
+
+        header {
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            animation: slideIn 0.5s ease-out;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        header:hover {
+            background: rgba(0, 0, 0, 0.4);
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
             transition: all 0.3s ease;
             text-decoration: none;
         }
         
         .logo:hover {
-            transform: scale(1.02);
+            transform: translateY(-2px);
         }
 
         .logo i {
@@ -175,22 +171,26 @@
             flex: 1;
             max-width: 1200px;
             margin: 2rem auto;
-            padding: 0 1rem;
+            padding: 0 1.5rem;
+            width: 100%;
+            animation: slideIn 0.6s ease-out;
             position: relative;
             z-index: 1;
-            width: 100%;
         }
 
         .page-header {
+            margin-bottom: 2rem;
             text-align: center;
-            margin-bottom: 3rem;
-            position: relative;
         }
 
         .page-title {
-            color: var(--text-light);
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             position: relative;
             display: inline-block;
         }
@@ -198,46 +198,55 @@
         .page-title::after {
             content: '';
             position: absolute;
+            width: 60px;
+            height: 4px;
+            background: var(--primary-gradient);
             bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: var(--primary-gradient);
             border-radius: 2px;
         }
 
         .page-subtitle {
             color: var(--text-muted);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
+            font-size: 1rem;
+            max-width: 650px;
+            margin: 1.5rem auto 0;
         }
 
         .registration-cards {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 992px) {
+            .registration-cards {
+                grid-template-columns: 1fr;
+            }
         }
 
         .card {
-            background: var(--bg-card);
-            border-radius: 15px;
+            background: rgba(30, 30, 30, 0.7);
+            border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             transition: var(--transition-normal);
-            transform: translateY(0);
             position: relative;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border-color: rgba(61, 132, 255, 0.3);
         }
 
         .card-header {
             background: var(--primary-gradient);
-            padding: 1.5rem;
+            padding: 1.2rem 1.5rem;
             color: white;
             display: flex;
             align-items: center;
@@ -260,9 +269,9 @@
         }
 
         .card-icon {
-            font-size: 2.5rem;
-            width: 60px;
-            height: 60px;
+            font-size: 1.5rem;
+            width: 45px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -273,7 +282,7 @@
         }
 
         .card-title {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 600;
             margin: 0;
             position: relative;
@@ -281,84 +290,18 @@
         }
 
         .card-body {
-            padding: 2rem;
+            padding: 1.8rem;
         }
 
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
         }
 
         .form-group {
             position: relative;
-            overflow: hidden;
             margin-bottom: 0.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.7rem;
-            color: var(--text-muted);
-            font-weight: 500;
-            transition: var(--transition-normal);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: var(--transition-normal);
-            background-color: var(--bg-input);
-            color: var(--text-light);
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--accent-blue);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(61, 132, 255, 0.1);
-        }
-
-        .form-group input:focus + .focus-border,
-        .form-group select:focus + .focus-border,
-        .form-group textarea:focus + .focus-border {
-            transform: scaleX(1);
-        }
-
-        .focus-border {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--primary-gradient);
-            transform: scaleX(0);
-            transition: var(--transition-normal);
-            transform-origin: left;
-        }
-
-        .input-icon {
-            position: absolute;
-            top: 40px;
-            right: 15px;
-            color: #a0a0a0;
-            transition: var(--transition-normal);
-        }
-
-        .form-group input:focus ~ .input-icon,
-        .form-group select:focus ~ .input-icon,
-        .form-group textarea:focus ~ .input-icon {
-            color: var(--accent-blue);
-            transform: scale(1.2);
-        }
-
-        .form-group.input-effect {
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 0.5s forwards;
@@ -371,32 +314,72 @@
             }
         }
 
-        .error-message {
-            color: var(--error-color);
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            animation: shake 0.5s ease-in-out;
+        .form-group label {
+            display: block;
+            margin-bottom: 0.6rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition-normal);
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: var(--transition-normal);
+            background-color: rgba(37, 37, 37, 0.8);
+            color: var(--text-light);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(61, 132, 255, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            top: 38px;
+            right: 12px;
+            color: var(--text-muted);
+            transition: var(--transition-normal);
+        }
+
+        .form-group input:focus ~ .input-icon,
+        .form-group select:focus ~ .input-icon,
+        .form-group textarea:focus ~ .input-icon {
+            color: var(--accent-blue);
+            transform: scale(1.1);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 0.4rem;
         }
 
         .submit-section {
             margin-top: 2rem;
-            text-align: center;
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
         }
 
         .submit-btn {
             background: var(--primary-gradient);
             color: white;
             border: none;
-            padding: 1.2rem 3rem;
-            border-radius: 50px;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: var(--transition-normal);
             display: inline-flex;
@@ -405,73 +388,53 @@
             gap: 0.8rem;
             position: relative;
             overflow: hidden;
-            min-width: 250px;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: all 0.6s ease;
+            background-size: 200% auto;
         }
 
         .submit-btn:hover {
-            transform: translateY(-3px);
+            background-position: right center;
+            transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(61, 132, 255, 0.4);
         }
 
-        .submit-btn:hover::before {
-            left: 100%;
+        .help-text {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
         }
 
-        .floating-car {
+        /* Date picker styling */
+        .date-input-container {
+            position: relative;
+        }
+
+        input[type="date"] {
+            appearance: none;
+            -webkit-appearance: none;
+            position: relative;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(160, 160, 160)" class="bi bi-calendar" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 95% center;
+            cursor: pointer;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background: transparent;
+            width: 100%;
+            height: 100%;
             position: absolute;
-            right: -60px;
-            bottom: -30px;
-            font-size: 10rem;
-            color: rgba(61, 132, 255, 0.05);
-            transform: rotate(15deg);
-            z-index: 0;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+            opacity: 0;
         }
 
-        .floating-user {
-            position: absolute;
-            left: -60px;
-            bottom: -30px;
-            font-size: 10rem;
-            color: rgba(61, 132, 255, 0.05);
-            transform: rotate(-15deg);
-            z-index: 0;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                margin: 1rem auto;
-            }
-
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .card-header {
-                padding: 1.2rem;
-            }
-
-            .card-body {
-                padding: 1.5rem;
-            }
-
-            .input-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .floating-car, .floating-user {
-                font-size: 6rem;
-            }
+        .date-validation-error {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 0.4rem;
+            display: none;
         }
 
         /* Animation delay for form fields */
@@ -481,14 +444,81 @@
         .form-group:nth-child(4) { animation-delay: 0.4s; }
         .form-group:nth-child(5) { animation-delay: 0.5s; }
         .form-group:nth-child(6) { animation-delay: 0.6s; }
-        .form-group:nth-child(7) { animation-delay: 0.7s; }
-        .form-group:nth-child(8) { animation-delay: 0.8s; }
+
+        /* Auto-generated registration number display */
+        .auto-generated-number {
+            margin-top: 0.8rem;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, rgba(61, 132, 255, 0.1), rgba(99, 209, 255, 0.1));
+            border: 1px solid rgba(61, 132, 255, 0.2);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .number-display-row {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .auto-generated-number strong {
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3d84ff, #63d1ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background-color: rgba(61, 132, 255, 0.05);
+            border: 1px dashed rgba(61, 132, 255, 0.2);
+        }
+
+        .auto-gen-explanation {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 0.2rem;
+            padding-left: 0.3rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+                margin: 1rem auto;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .nav-links {
+                gap: 0.8rem;
+            }
+
+            .nav-link {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
+    <div class="bg-blur blur-1"></div>
+    <div class="bg-blur blur-2"></div>
     
-    <header class="header">
+    <header>
         <a href="{% url 'home' %}" class="logo">
             <i class="fas fa-car"></i>
             <h1>AutoSphere</h1>
@@ -511,9 +541,10 @@
             <p class="page-subtitle">Add a new vehicle to the official registry with detailed information about the vehicle and its owner.</p>
         </div>
         
-    <form method="post">
-        {% csrf_token %}
+        <form method="post">
+            {% csrf_token %}
             <div class="registration-cards">
+                <!-- Vehicle Information Card -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -523,91 +554,167 @@
                     </div>
                     <div class="card-body">
                         <div class="input-grid">
-                            {% with form_fields=form.visible_fields %}
-                            {% for field in form_fields|slice:":4" %}
-                            <div class="form-group input-effect">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                <span class="focus-border"></span>
-                                {% if field.name == 'registration_number' %}
-                                <i class="fas fa-id-card input-icon"></i>
-                                {% elif field.name == 'make' or field.name == 'model' %}
-                                <i class="fas fa-car input-icon"></i>
-                                {% elif field.name == 'year' %}
-                                <i class="fas fa-calendar-alt input-icon"></i>
-                                {% elif field.name == 'chassis_number' %}
-                                <i class="fas fa-fingerprint input-icon"></i>
-                                {% elif field.name == 'engine_number' %}
-                                <i class="fas fa-cogs input-icon"></i>
-                                {% else %}
-                                <i class="fas fa-info-circle input-icon"></i>
-                                {% endif %}
-                                {% if field.errors %}
+                            <div class="form-group">
+                                <label for="{{ form.owner_name.id_for_label }}">{{ form.owner_name.label }}</label>
+                                {{ form.owner_name }}
+                                <i class="fas fa-user input-icon"></i>
+                                {% if form.owner_name.errors %}
                                 <div class="error-message">
-                                    {{ field.errors }}
+                                    {{ form.owner_name.errors }}
                                 </div>
                                 {% endif %}
                             </div>
-                            {% endfor %}
-                            {% endwith %}
+                            
+                            <div class="form-group">
+                                <label for="{{ form.manufacturer.id_for_label }}">{{ form.manufacturer.label }}</label>
+                                {{ form.manufacturer }}
+                                <i class="fas fa-industry input-icon"></i>
+                                {% if form.manufacturer.errors %}
+                                <div class="error-message">
+                                    {{ form.manufacturer.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.model.id_for_label }}">{{ form.model.label }}</label>
+                                {{ form.model }}
+                                <i class="fas fa-car input-icon"></i>
+                                {% if form.model.errors %}
+                                <div class="error-message">
+                                    {{ form.model.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.color.id_for_label }}">{{ form.color.label }}</label>
+                                {{ form.color }}
+                                <i class="fas fa-palette input-icon"></i>
+                                {% if form.color.errors %}
+                                <div class="error-message">
+                                    {{ form.color.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.chassis_number.id_for_label }}">{{ form.chassis_number.label }}</label>
+                                {{ form.chassis_number }}
+                                <i class="fas fa-fingerprint input-icon"></i>
+                                {% if form.chassis_number.errors %}
+                                <div class="error-message">
+                                    {{ form.chassis_number.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ form.fuel_type.id_for_label }}">{{ form.fuel_type.label }}</label>
+                                {{ form.fuel_type }}
+                                <i class="fas fa-gas-pump input-icon"></i>
+                                {% if form.fuel_type.errors %}
+                                <div class="error-message">
+                                    {{ form.fuel_type.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
-                        <i class="fas fa-car floating-car"></i>
                     </div>
                 </div>
-                
+
+                <!-- Vehicle Classification & Document Card -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-icon">
-                            <i class="fas fa-user-shield"></i>
+                            <i class="fas fa-clipboard-list"></i>
                         </div>
-                        <h2 class="card-title">Owner Information</h2>
+                        <h2 class="card-title">Classification & Documents</h2>
                     </div>
                     <div class="card-body">
                         <div class="input-grid">
-                            {% with form_fields=form.visible_fields %}
-                            {% for field in form_fields|slice:"4:" %}
-                            <div class="form-group input-effect">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                <span class="focus-border"></span>
-                                {% if field.name == 'owner_name' %}
-                                <i class="fas fa-user input-icon"></i>
-                                {% elif field.name == 'address' %}
-                                <i class="fas fa-map-marker-alt input-icon"></i>
-                                {% else %}
-                                <i class="fas fa-info-circle input-icon"></i>
-                                {% endif %}
-                                {% if field.errors %}
+                            <div class="form-group">
+                                <label for="{{ form.vehicle_type.id_for_label }}">{{ form.vehicle_type.label }}</label>
+                                {{ form.vehicle_type }}
+                                <i class="fas fa-truck input-icon"></i>
+                                {% if form.vehicle_type.errors %}
                                 <div class="error-message">
-                                    {{ field.errors }}
+                                    {{ form.vehicle_type.errors }}
+                                </div>
+                                {% endif %}
+                                {% if form.vehicle_type.help_text %}
+                                <small class="help-text">{{ form.vehicle_type.help_text }}</small>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.registration_validity_date.id_for_label }}">{{ form.registration_validity_date.label }}</label>
+                                <div class="date-input-container">
+                                    {{ form.registration_validity_date }}
+                                    <i class="fas fa-calendar-check input-icon"></i>
+                                </div>
+                                {% if form.registration_validity_date.errors %}
+                                <div class="error-message">
+                                    {{ form.registration_validity_date.errors }}
                                 </div>
                                 {% endif %}
                             </div>
-                            {% endfor %}
-                            {% endwith %}
-                        </div>
-                        <i class="fas fa-user floating-user"></i>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <div class="d-flex align-items-center mb-2">
-                        <label class="form-check-label me-2" for="id_use_manual_entry">
-                            {{ form.use_manual_entry.label }}
-                        </label>
-                        {{ form.use_manual_entry }}
-                        <small class="form-text text-muted ms-2">{{ form.use_manual_entry.help_text }}</small>
-                    </div>
-                    <div class="registration-number-input">
-                        {{ form.registration_number }}
-                        {% if form.registration_number.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.registration_number.errors }}
+                            
+                            <div class="form-group">
+                                <label for="{{ form.puc_validity_date.id_for_label }}">{{ form.puc_validity_date.label }}</label>
+                                <div class="date-input-container">
+                                    {{ form.puc_validity_date }}
+                                    <i class="fas fa-calendar-check input-icon"></i>
+                                </div>
+                                {% if form.puc_validity_date.errors %}
+                                <div class="error-message">
+                                    {{ form.puc_validity_date.errors }}
+                                </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
+                            
+                            <div class="form-group">
+                                <label for="{{ form.blacklist_status.id_for_label }}">{{ form.blacklist_status.label }}</label>
+                                {{ form.blacklist_status }}
+                                <i class="fas fa-ban input-icon"></i>
+                                {% if form.blacklist_status.errors %}
+                                <div class="error-message">
+                                    {{ form.blacklist_status.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_use_manual_entry">{{ form.use_manual_entry.label }}</label>
+                                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                                    {{ form.use_manual_entry }}
+                                    <span class="help-text" style="margin-left: 0.5rem;">{{ form.use_manual_entry.help_text }}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.registration_number.id_for_label }}">Registration Number</label>
+                                {{ form.registration_number }}
+                                <i class="fas fa-id-card input-icon"></i>
+                                {% if form.registration_number.errors %}
+                                <div class="error-message">
+                                    {{ form.registration_number.errors }}
+                                </div>
+                                {% endif %}
+                                <span class="help-text">This will be automatically prefixed with your RTO code.</span>
+                                <div id="auto-generated-number-display" class="auto-generated-number">
+                                    <div class="number-display-row">
+                                        <span>Auto-generated number:</span>
+                                        <strong id="generated-number-value">{{ form.registration_number.value }}</strong>
+                                    </div>
+                                    <small class="auto-gen-explanation">The system automatically assigns the first available number in the sequence.</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
+
+                <!-- Submit Section -->
                 <div class="submit-section">
                     <button type="submit" class="submit-btn">
                         <i class="fas fa-car"></i>
@@ -615,72 +722,100 @@
                     </button>
                 </div>
             </div>
-    </form>
+        </form>
     </main>
 
     <script>
-        // Create floating particles
-        document.addEventListener('DOMContentLoaded', function() {
-            const particlesContainer = document.getElementById('particles');
-            const particleCount = 20;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                
-                // Random position, size and animation duration
-                const size = Math.random() * 15 + 5;
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100 + 100;
-                const duration = Math.random() * 30 + 10;
-                const delay = Math.random() * 10;
-                
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.left = `${posX}%`;
-                particle.style.bottom = `${-posY}px`;
-                particle.style.animationDuration = `${duration}s`;
-                particle.style.animationDelay = `${delay}s`;
-                
-                particlesContainer.appendChild(particle);
-            }
-            
-            // Add animation class to form fields
-            const formGroups = document.querySelectorAll('.form-group');
-            formGroups.forEach(group => {
-                group.classList.add('input-effect');
-            });
-        });
-
-        // Add animation on form input focus
-        const inputs = document.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.querySelector('.input-icon').classList.add('active');
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.querySelector('.input-icon').classList.remove('active');
-            });
-        });
-
         document.addEventListener('DOMContentLoaded', function() {
             const manualEntryCheckbox = document.getElementById('id_use_manual_entry');
             const registrationNumberInput = document.getElementById('id_registration_number');
+            const autoGeneratedDisplay = document.getElementById('auto-generated-number-display');
+            const generatedNumberValue = document.getElementById('generated-number-value');
             
             function toggleRegistrationInput() {
                 if (manualEntryCheckbox.checked) {
                     registrationNumberInput.removeAttribute('readonly');
                     registrationNumberInput.placeholder = 'Enter registration number (e.g., AB 5500)';
+                    autoGeneratedDisplay.style.display = 'none';
                 } else {
                     registrationNumberInput.setAttribute('readonly', 'readonly');
                     registrationNumberInput.placeholder = 'Auto-generated';
+                    // Show the auto-generated display
+                    autoGeneratedDisplay.style.display = 'flex';
+                    // Ensure we're showing the current value
+                    generatedNumberValue.textContent = registrationNumberInput.value;
                 }
             }
             
             manualEntryCheckbox.addEventListener('change', toggleRegistrationInput);
             toggleRegistrationInput(); // Initial state
+
+            // Date validation setup
+            const regValidityDateInput = document.getElementById('{{ form.registration_validity_date.id_for_label }}');
+            const pucValidityDateInput = document.getElementById('{{ form.puc_validity_date.id_for_label }}');
+            const regErrorElement = document.createElement('div');
+            const pucErrorElement = document.createElement('div');
+            
+            // Set up validation error elements
+            regErrorElement.className = 'date-validation-error';
+            regErrorElement.id = 'reg-date-error';
+            regErrorElement.textContent = 'Registration validity date must be in the future';
+            regValidityDateInput.parentNode.appendChild(regErrorElement);
+            
+            pucErrorElement.className = 'date-validation-error';
+            pucErrorElement.id = 'puc-date-error';
+            pucErrorElement.textContent = 'PUC validity date must be in the future';
+            pucValidityDateInput.parentNode.appendChild(pucErrorElement);
+            
+            // Set date inputs to type="date"
+            regValidityDateInput.type = 'date';
+            pucValidityDateInput.type = 'date';
+
+            // Set minimum date to today
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayFormatted = `${yyyy}-${mm}-${dd}`;
+            
+            regValidityDateInput.min = todayFormatted;
+            pucValidityDateInput.min = todayFormatted;
+
+            // Add validation function
+            function validateDateInput(input, errorElement) {
+                const selectedDate = new Date(input.value);
+                const now = new Date();
+                now.setHours(0, 0, 0, 0); // Reset time part for proper comparison
+                
+                if (selectedDate < now) {
+                    errorElement.style.display = 'block';
+                    input.setCustomValidity('Date must be in the future');
+                } else {
+                    errorElement.style.display = 'none';
+                    input.setCustomValidity('');
+                }
+            }
+            
+            // Add event listeners for validation
+            regValidityDateInput.addEventListener('change', function() {
+                validateDateInput(regValidityDateInput, regErrorElement);
+            });
+            
+            pucValidityDateInput.addEventListener('change', function() {
+                validateDateInput(pucValidityDateInput, pucErrorElement);
+            });
+            
+            // Form validation before submit
+            document.querySelector('form').addEventListener('submit', function(e) {
+                validateDateInput(regValidityDateInput, regErrorElement);
+                validateDateInput(pucValidityDateInput, pucErrorElement);
+                
+                if (!regValidityDateInput.checkValidity() || !pucValidityDateInput.checkValidity()) {
+                    e.preventDefault();
+                }
+            });
         });
     </script>
 </body>
 </html>
+

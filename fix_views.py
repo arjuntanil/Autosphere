@@ -68,4 +68,64 @@ if match:
     else:
         print("Could not locate the end of the section to replace")
 else:
-    print("Could not find the problematic section in views.py") 
+    print("Could not find the problematic section in views.py")
+
+def fix_views():
+    print("Fixing indentation in views.py...")
+    
+    # Read the file content
+    with open('myapp/views.py', 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    
+    # Find the start of the impose_fine function
+    impose_fine_start = -1
+    for i, line in enumerate(lines):
+        if 'def impose_fine(request):' in line:
+            impose_fine_start = i
+            break
+    
+    if impose_fine_start == -1:
+        print("Could not find the impose_fine function in views.py")
+        return
+    
+    # Find the next function definition to determine the end of impose_fine
+    impose_fine_end = -1
+    for i in range(impose_fine_start + 1, len(lines)):
+        if 'def ' in lines[i] and '(' in lines[i] and '):' in lines[i]:
+            impose_fine_end = i
+            break
+    
+    if impose_fine_end == -1:
+        print("Could not find the end of impose_fine function")
+        return
+    
+    # Extract the function content
+    function_lines = lines[impose_fine_start:impose_fine_end]
+    
+    # Fix indentation issues in lines 609-611 (which might have different line numbers in the file)
+    fixed_lines = []
+    
+    in_try_block = False
+    
+    for i, line in enumerate(function_lines):
+        if '            try:' in line:
+            in_try_block = True
+            fixed_lines.append(line)
+        elif in_try_block and ('reg_number =' in line or 'normalized_reg =' in line or 'if not normalized_reg:' in line):
+            # Fix the indentation for these lines
+            fixed_line = line.replace('            ', '                ')
+            fixed_lines.append(fixed_line)
+        else:
+            fixed_lines.append(line)
+    
+    # Replace the function in the file
+    new_lines = lines[:impose_fine_start] + fixed_lines + lines[impose_fine_end:]
+    
+    # Write back to the file
+    with open('myapp/views.py', 'w', encoding='utf-8') as f:
+        f.writelines(new_lines)
+    
+    print("Successfully fixed indentation in impose_fine function")
+
+if __name__ == "__main__":
+    fix_views() 

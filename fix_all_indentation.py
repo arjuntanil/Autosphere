@@ -1,56 +1,14 @@
-#!/usr/bin/env python
-# Script to fix indentation issues in views.py
+"""
+Script to fix all indentation issues in views.py file
+"""
 
-import re
-
-with open('myapp/views.py', 'r') as f:
-    lines = f.readlines()
-
-# Fix for get_notification_count (around line 955)
-for i in range(len(lines)):
-    if 'def get_notification_count' in lines[i]:
-        # Fix the indentation for the next few lines
-        start_index = i + 1
-        lines[start_index] = '    """API endpoint to get the number of unread notifications for a user"""\n'
-        lines[start_index+1] = '    if request.user.is_authenticated:\n'
-        lines[start_index+2] = '        count = UserNotification.objects.filter(user=request.user, is_read=False).count()\n'
-        lines[start_index+3] = '        return JsonResponse({\'count\': count})\n'
-        lines[start_index+4] = '    return JsonResponse({\'count\': 0})\n'
-        break
-
-# Fix for rto_modification_requests (around line 1045)
-for i in range(len(lines)):
-    if '# Filter requests based on RTO jurisdiction' in lines[i] and '# Get vehicles with registration numbers' in lines[i+1]:
-        # Find and fix the indentation for these lines
-        lines[i+2] = '    requests = VehicleModificationRequest.objects.filter(\n'
-        lines[i+3] = '        vehicle__registration_number__startswith=f"KL {rto_reg_number}"\n'
-        lines[i+4] = '    ).order_by(\'-created_at\')\n'
-        break
-
-# Write the fixed content back to the file
-with open('myapp/views.py', 'w') as f:
-    f.writelines(lines)
-
-print("Indentation issues fixed in views.py")
-
-def fix_impose_fine_indentation():
-    try:
-        with open('myapp/views.py', 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # Find the impose_fine function
-        impose_fine_pattern = r'@login_required\s*?\ndef impose_fine\(request\):.*?def rto_fine_list\(request\):'
-        impose_fine_match = re.search(impose_fine_pattern, content, re.DOTALL)
-        
-        if not impose_fine_match:
-            print("Could not find the impose_fine function in views.py")
-            return False
-        
-        # Get the function code
-        function_code = impose_fine_match.group(0)
-        
-        # Fix the indentation issues
-        fixed_function_code = '''@login_required
+def fix_impose_fine():
+    """Fix the impose_fine function indentation"""
+    with open('myapp/views.py', 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Define the properly indented impose_fine function
+    fixed_function = '''@login_required
 def impose_fine(request):
     """View for RTO users to impose fines on vehicles"""
     if not request.user.user_type == 'RTO':
@@ -144,21 +102,44 @@ def impose_fine(request):
     }
     
     return render(request, 'impose_fine.html', context)
+'''
 
-def rto_fine_list(request):'''
-        
-        # Replace the function in the content
-        fixed_content = content.replace(function_code, fixed_function_code)
-        
-        # Write back to file
+    # Find the start and end of the function
+    start_idx = content.find("@login_required\ndef impose_fine(request):")
+    next_func = content.find("def rto_fine_list(request):", start_idx)
+    
+    if start_idx != -1 and next_func != -1:
+        # Replace the function
+        new_content = content[:start_idx] + fixed_function + content[next_func:]
         with open('myapp/views.py', 'w', encoding='utf-8') as f:
-            f.write(fixed_content)
-        
-        print("Successfully fixed indentation in impose_fine function")
-        return True
-    except Exception as e:
-        print(f"Error fixing indentation: {str(e)}")
-        return False
+            f.write(new_content)
+        print("Fixed impose_fine function indentation")
+    else:
+        print("Could not find impose_fine function")
+
+def fix_rto_modification_requests():
+    """Fix the rto_modification_requests function indentation"""
+    with open('myapp/views.py', 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    
+    # Find the problematic section
+    for i, line in enumerate(lines):
+        if "# Filter requests based on RTO jurisdiction" in line:
+            # Fix indentation for the next few lines
+            if i+2 < len(lines) and "requests = VehicleModificationRequest.objects.filter(" in lines[i+2]:
+                lines[i+2] = "    requests = VehicleModificationRequest.objects.filter(\n"
+                # Make sure next lines are also properly indented
+                if i+3 < len(lines):
+                    lines[i+3] = "        vehicle__registration_number__startswith=f\"KL {rto_reg_number}\"\n"
+                if i+4 < len(lines):
+                    lines[i+4] = "    ).order_by('-created_at')\n"
+    
+    # Write the fixed content back
+    with open('myapp/views.py', 'w', encoding='utf-8') as f:
+        f.writelines(lines)
+    print("Fixed rto_modification_requests function indentation")
 
 if __name__ == "__main__":
-    fix_impose_fine_indentation() 
+    fix_impose_fine()
+    fix_rto_modification_requests()
+    print("All indentation issues fixed!") 

@@ -219,11 +219,19 @@ def rto_home(request):
     # Get recent vehicles
     recent_vehicles = Vehicle.objects.all().order_by('-registered_at')[:5]
     
-    # Get recent fines imposed by the current RTO user
-    recent_fines = VehicleFine.objects.filter(imposed_by=request.user).order_by('-imposed_date')[:5]
+    # Get RTO's registration code (e.g., '06' from 'KL 06')
+    rto_reg_number = request.user.reg_number
     
-    # Get modification requests
-    modification_requests = VehicleModificationRequest.objects.filter(status='pending').order_by('-created_at')
+    # Get recent pending modification requests for this RTO's jurisdiction
+    recent_requests = []
+    if rto_reg_number:
+        recent_requests = VehicleModificationRequest.objects.filter(
+            vehicle__registration_number__startswith=f"KL {rto_reg_number}",
+            status='pending'
+        ).order_by('-created_at')[:5]
+    
+    # Get jurisdiction label
+    rto_jurisdiction = f"KL {rto_reg_number}" if rto_reg_number else "Not configured"
     
     return render(request, 'rto_home.html', {
         'total_vehicles': total_vehicles,
@@ -231,39 +239,99 @@ def rto_home(request):
         'total_fines': total_fines,
         'unpaid_fines': unpaid_fines,
         'recent_vehicles': recent_vehicles,
-        'recent_fines': recent_fines,
-        'modification_requests': modification_requests,
+        'recent_requests': recent_requests,
+        'rto_jurisdiction': rto_jurisdiction,
         'update_message': update_message
     })
 
 def generate_next_registration_number(rto_reg_number):
     """
     Generates the next available vehicle registration number.
+    
+    The system will:
+    1. Find the first available number in the range 0001-9999
+    2. If all numbers 0001-9999 are taken, move to A 0001-A 9999
+    3. Continue with B, C, etc. until Z, then AA, AB, etc.
+    4. Always verify the registration number is unique
     """
-    last_vehicle = Vehicle.objects.filter(registration_number__startswith=f"KL {rto_reg_number}").order_by('-registration_number').first()
-
-    if not last_vehicle:
-        return f"KL {rto_reg_number} 0001"
-
-    last_reg_number = last_vehicle.registration_number.split()[-1]
-
-    if last_reg_number.isnumeric():
-        next_number = int(last_reg_number) + 1
-        if next_number <= 9999:
-            return f"KL {rto_reg_number} {next_number:04d}"
-        else:
-            return f"KL {rto_reg_number} A 0001"
-    else:
-        last_letter = last_reg_number[0]
-        last_digits = int(last_reg_number[1:])
-        if last_digits < 9999:
-            return f"KL {rto_reg_number} {last_letter} {last_digits + 1:04d}"
-        else:
-            if last_letter == 'Z':
-                return f"KL {rto_reg_number} AA 0001"
-            else:
-                next_letter = chr(ord(last_letter) + 1)
-                return f"KL {rto_reg_number} {next_letter} 0001"
+    # Base prefix for all registration numbers with this RTO code
+    prefix = f"KL {rto_reg_number}"
+    
+    # Step 1: Check for numeric-only registration numbers (0001-9999)
+    existing_numeric = set()
+    
+    # Get all vehicles with numeric-only registration numbers
+    numeric_vehicles = Vehicle.objects.filter(
+        registration_number__startswith=prefix,
+        registration_number__regex=r'^KL \d{2} \d{4}$'
+    )
+    
+    # Add all existing numeric registration numbers to the set
+    for vehicle in numeric_vehicles:
+        reg_parts = vehicle.registration_number.split()
+        if len(reg_parts) == 3:  # Format: KL XX YYYY
+            try:
+                num = int(reg_parts[2])
+                existing_numeric.add(num)
+            except ValueError:
+                pass
+    
+    # Find the first available number in range 0001-9999
+    for num in range(1, 10000):
+        if num not in existing_numeric:
+            return f"{prefix} {num:04d}"
+    
+    # Step 2: All numeric slots are taken, check alphabetic series
+    # Start from A and go up to Z
+    for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+        # Get all registration numbers for this letter series
+        letter_vehicles = Vehicle.objects.filter(
+            registration_number__startswith=f"{prefix} {letter}"
+        )
+        
+        # Create a set of existing numbers for this letter
+        existing_letter_nums = set()
+        for vehicle in letter_vehicles:
+            reg_parts = vehicle.registration_number.split()
+            if len(reg_parts) == 4:  # Format: KL XX A YYYY
+                try:
+                    num = int(reg_parts[3])
+                    existing_letter_nums.add(num)
+                except ValueError:
+                    pass
+        
+        # Find the first available number in this letter series
+        for num in range(1, 10000):
+            if num not in existing_letter_nums:
+                return f"{prefix} {letter} {num:04d}"
+    
+    # Step 3: If code reaches here, we need to go to AA, AB, etc.
+    # This is very unlikely but we'll implement it for completeness
+    for first_letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+        for second_letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            double_letter = f"{first_letter}{second_letter}"
+            letter_vehicles = Vehicle.objects.filter(
+                registration_number__startswith=f"{prefix} {double_letter}"
+            )
+            
+            # Create a set of existing numbers for this double letter
+            existing_letter_nums = set()
+            for vehicle in letter_vehicles:
+                reg_parts = vehicle.registration_number.split()
+                if len(reg_parts) == 4:  # Format: KL XX AA YYYY
+                    try:
+                        num = int(reg_parts[3])
+                        existing_letter_nums.add(num)
+                    except ValueError:
+                        pass
+            
+            # Find the first available number in this double letter series
+            for num in range(1, 10000):
+                if num not in existing_letter_nums:
+                    return f"{prefix} {double_letter} {num:04d}"
+    
+    # Fallback (extremely unlikely to reach here)
+    return f"{prefix} AAA 0001"
 
 @login_required
 def register_vehicle(request):
@@ -283,6 +351,10 @@ def register_vehicle(request):
             else:
                 # Auto-generate registration number
                 vehicle.registration_number = generate_next_registration_number(request.user.reg_number)
+            
+            # Set location and registered_by fields
+            vehicle.location = request.user.location
+            vehicle.registered_by = request.user
             
             vehicle.save()
             messages.success(request, 'Vehicle registered successfully!')
@@ -691,6 +763,7 @@ def impose_fine(request):
     
     return render(request, 'impose_fine.html', context)
 
+@login_required
 def rto_fine_list(request):
     """View for RTO users to see all fines"""
     if not request.user.user_type == 'RTO':
@@ -702,14 +775,22 @@ def rto_fine_list(request):
     
     # Apply filters based on GET parameters
     vehicle_number = request.GET.get('vehicle_number', '')
+    vehicle_id = request.GET.get('vehicle_id', '')
     min_amount = request.GET.get('min_amount', '')
     max_amount = request.GET.get('max_amount', '')
     from_date = request.GET.get('from_date', '')
     to_date = request.GET.get('to_date', '')
     status = request.GET.get('status', '')
     
+    # Filter by vehicle ID (takes precedence over registration number)
+    if vehicle_id:
+        try:
+            vehicle_id = int(vehicle_id)
+            fines = fines.filter(vehicle_id=vehicle_id)
+        except (ValueError, TypeError):
+            pass
     # Filter by vehicle registration number
-    if vehicle_number:
+    elif vehicle_number:
         normalized_number = normalize_registration_number(vehicle_number)
         fines = fines.filter(
             Q(vehicle__registration_number__icontains=vehicle_number) |
@@ -754,6 +835,37 @@ def rto_fine_list(request):
         'fines': fines,
         'status_choices': VehicleFine.PAYMENT_STATUS
     })
+
+@login_required
+def rto_fine_details(request, fine_id):
+    """View for RTO users to see details of a specific fine they imposed"""
+    if not request.user.user_type == 'RTO':
+        messages.error(request, "You do not have permission to view fine details")
+        return redirect('home')
+    
+    try:
+        # Only allow viewing fines imposed by the current RTO user
+        fine = VehicleFine.objects.get(id=fine_id, imposed_by=request.user)
+        
+        context = {
+            'fine': fine,
+            'is_rto': True,  # Flag to customize the template for RTO users
+        }
+        
+        # Add document information if available
+        if fine.violation_document:
+            context['document_type'] = fine.get_document_type()
+            
+        # Get payment information if available
+        if fine.payment_status == 'Paid':
+            payment = fine.get_latest_payment_attempt()
+            if payment:
+                context['payment'] = payment
+        
+        return render(request, 'fine_details.html', context)
+    except VehicleFine.DoesNotExist:
+        messages.error(request, "Fine not found or you don't have permission to view it.")
+        return redirect('rto_fine_list')
 
 @login_required
 def update_fine_status(request, fine_id):
@@ -852,11 +964,72 @@ def rto_vehicle_search(request):
     vehicles = []
     
     if query:
-        vehicles = Vehicle.objects.filter(
-            Q(registration_number__icontains=query) |
-            Q(chassis_number__icontains=query) |
-            Q(owner_name__icontains=query)
-        ).order_by('-registration_date')
+        # Try to find exact matches first using normalization
+        if len(query.strip()) >= 3:  # Only normalize if query has at least 3 chars
+            normalized_query = normalize_registration_number(query)
+            
+            # Get all vehicles and try to match exactly
+            all_vehicles = Vehicle.objects.all()
+            exact_matches = []
+            
+            for vehicle in all_vehicles:
+                # Normalize the stored registration number
+                normalized_reg = normalize_registration_number(vehicle.registration_number)
+                
+                # Compare with the normalized query
+                if normalized_reg == normalized_query:
+                    exact_matches.append(vehicle)
+            
+            # If we have exact matches, use only those
+            if exact_matches:
+                vehicles = exact_matches
+            else:
+                # Otherwise fall back to the broader search
+                vehicles = Vehicle.objects.filter(
+                    Q(registration_number__icontains=query) |
+                    Q(chassis_number__icontains=query) |
+                    Q(owner_name__icontains=query)
+                ).order_by('-registered_at')
+        else:
+            # For very short queries, use the original search logic
+            vehicles = Vehicle.objects.filter(
+                Q(registration_number__icontains=query) |
+                Q(chassis_number__icontains=query) |
+                Q(owner_name__icontains=query)
+            ).order_by('-registered_at')
+        
+        # For each vehicle, get fine details
+        for vehicle in vehicles:
+            # Get all fines associated with the vehicle
+            all_fines = vehicle.fines.all()
+            vehicle.total_fines = all_fines.count()
+            
+            # Only continue if vehicle has fines
+            if vehicle.total_fines > 0:
+                # Count fines by payment status
+                vehicle.paid_fines = all_fines.filter(payment_status='Paid').count()
+                vehicle.unpaid_fines = all_fines.filter(payment_status='Unpaid').count()
+                vehicle.contested_fines = all_fines.filter(payment_status='Contested').count()
+                vehicle.waived_fines = all_fines.filter(payment_status='Waived').count()
+                vehicle.processing_fines = all_fines.filter(payment_status='Processing').count()
+                
+                # Calculate total fine amount (paid and unpaid)
+                from django.db.models import Sum
+                vehicle.total_fine_amount = all_fines.aggregate(Sum('fine_amount'))['fine_amount__sum'] or 0
+                vehicle.unpaid_fine_amount = all_fines.filter(payment_status='Unpaid').aggregate(Sum('fine_amount'))['fine_amount__sum'] or 0
+                
+                # Get recent fines for display
+                vehicle.recent_fines = all_fines.order_by('-imposed_date')[:3]
+            else:
+                # Set default values if vehicle has no fines
+                vehicle.paid_fines = 0
+                vehicle.unpaid_fines = 0
+                vehicle.contested_fines = 0
+                vehicle.waived_fines = 0
+                vehicle.processing_fines = 0
+                vehicle.total_fine_amount = 0
+                vehicle.unpaid_fine_amount = 0
+                vehicle.recent_fines = []
     
     context = {
         'vehicles': vehicles,
@@ -2036,4 +2209,3 @@ def view_document(request, document_id):
     except Exception as e:
         messages.error(request, f"Error accessing document: {str(e)}")
         return redirect('fine_details', fine_id=fine.id if fine else 0)
-

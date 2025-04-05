@@ -32,6 +32,7 @@ urlpatterns = [
     path('rto/fines/impose/', views.impose_fine, name='impose_fine'),
     path('rto/fines/<int:fine_id>/update-status/', views.update_fine_status, name='update_fine_status'),
     path('rto/fines/<int:fine_id>/delete/', views.delete_fine, name='delete_fine'),
+    path('rto/fines/<int:fine_id>/', views.rto_fine_details, name='rto_fine_details'),
     path('my-vehicles/fines/', views.user_vehicle_fines, name='user_vehicle_fines'),
     path('fines/<int:fine_id>/', views.fine_details, name='fine_details'),
     
